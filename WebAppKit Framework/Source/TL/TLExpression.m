@@ -205,7 +205,7 @@
 		
 		// Apply prefix operators
 		for(NSString *token in [prefixTokens reverseObjectEnumerator]) {
-			TLOperator op;
+			TLOperator op = TLOperatorInvalid;
 			if([token isEqual:@"!"]) op = TLOperatorNegation;
 			part = [[TLOperation alloc] initWithOperator:op leftOperand:part rightOperand:nil];
 		}
@@ -215,9 +215,7 @@
 
 		// Operator part
 		token = [scanner peekToken];
-		c = [token characterAtIndex:0];
-		type = scanner.lastTokenType;
-		
+
 		TLOperator operator = [TLOperation operatorForSymbol:token];
 		
 		if([endToken isEqual:token]) {

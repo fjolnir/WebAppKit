@@ -37,7 +37,7 @@
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* WebApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2AD46F1140D4262008CF796 /* index.wat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = index.wat; sourceTree = "<group>"; };
-		E2AD46F3140D4405008CF796 /* WebAppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebAppKit.framework; path = Frameworks/WebAppKit.framework; sourceTree = SOURCE_ROOT; };
+		E2AD46F3140D4405008CF796 /* WebAppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebAppKit.framework; path = "../WebAppKit Framework/DerivedData/Build/Debug/WebAppKit.framework"; sourceTree = SOURCE_ROOT; };
 		E2EAED3F12B9307200097E0B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		E2EAED4112B9307200097E0B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E2EAED4712B930A200097E0B /* WebApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApp.h; sourceTree = "<group>"; };

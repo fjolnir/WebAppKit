@@ -18,12 +18,11 @@ NSString *WAGenerateUUIDString(void) {
 	return string;
 }
 
-
-// Recommended by Apple Technical Q&A 1398
 uint64_t WANanosecondTime() {
-	uint64_t time = mach_absolute_time();
-	Nanoseconds nanosecs = AbsoluteToNanoseconds(*(AbsoluteTime *) &time);
-	return *(uint64_t*)&nanosecs;	
+    static mach_timebase_info_data_t timebaseInfo;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ (void)mach_timebase_info(&timebaseInfo); });
+    return mach_absolute_time() * timebaseInfo.numer / timebaseInfo.denom;
 }
 
 

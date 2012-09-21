@@ -74,7 +74,7 @@
 }
 
 
-- (CFHTTPMessageRef)createHeader {
+- (CFHTTPMessageRef)createHeader CF_RETURNS_RETAINED {
 	CFHTTPMessageRef message = CFHTTPMessageCreateResponse(NULL, self.statusCode, NULL, (__bridge CFStringRef)self.request.HTTPVersion);
 	NSDictionary *fields = [self preparedHeaderFields];
 	for(NSString *key in fields)
