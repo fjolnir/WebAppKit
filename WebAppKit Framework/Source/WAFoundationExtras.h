@@ -5,6 +5,7 @@
 //  Created by Tomas Franzén on 2010-12-08.
 //  Copyright 2010 Lighthead Software. All rights reserved.
 //
+#import <Foundation/Foundation.h>
 
 @interface NSDictionary (WAExtras)
 + (id)dictionaryWithKeysAndObjects:(id)firstKey, ...;
