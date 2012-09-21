@@ -182,7 +182,6 @@ static NSCharacterSet *wildcardComponentCharacters;
 	id handlerArgs[argCount];
 
     handlerArgs[0] = request;
-    NSLog(@">>>%@", request);
     handlerArgs[1] = response;
 	for(int i = 0; i < [wildcardValues count]; i++) {
 		NSUInteger componentIndex = [[self.argumentWildcardMapping objectAtIndex:i] unsignedIntegerValue];
