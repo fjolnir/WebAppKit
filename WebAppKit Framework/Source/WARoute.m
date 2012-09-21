@@ -58,7 +58,7 @@ static NSCharacterSet *wildcardComponentCharacters;
 
 	NSUInteger wildcardCount = [[self class] wildcardCountInExpressionComponents:componentStrings];
 	
-	if(wildcardCount > 6)
+	if(wildcardCount > 8)
 		[NSException raise:NSGenericException format:@"WARoute supports a maxumum of 6 arguments"];
 	
 	NSMutableArray *wildcardMapping = [NSMutableArray array];
@@ -94,8 +94,8 @@ static NSCharacterSet *wildcardComponentCharacters;
 	[self setWildcardMappingForExpression:expression];	
 	NSUInteger numArgs = [[NSStringFromSelector(selector) componentsSeparatedByString:@":"] count]-1;
 	
-	if(numArgs != self.argumentWildcardMapping.count)
-		[NSException raise:NSInvalidArgumentException format:@"The number of arguments in the action selector (%@) must be equal to the number of wildcards in the path expression (%d).", NSStringFromSelector(selector), (int)self.argumentWildcardMapping.count];
+	if(numArgs != self.argumentWildcardMapping.count + 2)
+		[NSException raise:NSInvalidArgumentException format:@"The action (%@) must take a number of arguments equal to the wildcard count + request + response (%d).", NSStringFromSelector(selector), (int)self.argumentWildcardMapping.count+2];
 	
 	self.method = HTTPMetod;
 	self.action = selector;
@@ -127,7 +127,7 @@ static NSCharacterSet *wildcardComponentCharacters;
 			if(![self stringIsValidComponentValue:givenComponent])
 				return NO;
 			[wildcardValues addObject:givenComponent];
-		}else{
+		} else{
 			if(![givenComponent isEqual:component])
 				return NO;
 		}
@@ -143,29 +143,33 @@ static NSCharacterSet *wildcardComponentCharacters;
 
 
 
-- (id)callIdFunction:(IMP)function target:(id)target action:(SEL)action arguments:(__strong id *)strings count:(NSUInteger)argc {
+- (id)callIdFunction:(IMP)function target:(id)target action:(SEL)action arguments:(__strong id *)args count:(NSUInteger)argc {
 	switch(argc) {
 		case 0: return function(target, action);
-		case 1: return function(target, action, strings[0]);
-		case 2: return function(target, action, strings[0], strings[1]);
-		case 3: return function(target, action, strings[0], strings[1], strings[2]);
-		case 4: return function(target, action, strings[0], strings[1], strings[2], strings[3]);
-		case 5: return function(target, action, strings[0], strings[1], strings[2], strings[3], strings[4]);
-		case 6: return function(target, action, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5]);
+		case 1: return function(target, action, args[0]);
+		case 2: return function(target, action, args[0], args[1]);
+		case 3: return function(target, action, args[0], args[1], args[2]);
+		case 4: return function(target, action, args[0], args[1], args[2], args[3]);
+		case 5: return function(target, action, args[0], args[1], args[2], args[3], args[4]);
+		case 6: return function(target, action, args[0], args[1], args[2], args[3], args[4], args[5]);
+		case 7: return function(target, action, args[0], args[1], args[2], args[3], args[4], args[5], args[7]);
+		case 8: return function(target, action, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
 	}
 	return nil;
 }
 
 
-- (void)callVoidFunction:(void(*)(id,SEL,...))function target:(id)target action:(SEL)action arguments:(__strong id*)strings count:(NSUInteger)argc {
+- (void)callVoidFunction:(void(*)(id,SEL,...))function target:(id)target action:(SEL)action arguments:(__strong id*)args count:(NSUInteger)argc {
 	switch(argc) {
 		case 0: return function(target, action);
-		case 1: return function(target, action, strings[0]);
-		case 2: return function(target, action, strings[0], strings[1]);
-		case 3: return function(target, action, strings[0], strings[1], strings[2]);
-		case 4: return function(target, action, strings[0], strings[1], strings[2], strings[3]);
-		case 5: return function(target, action, strings[0], strings[1], strings[2], strings[3], strings[4]);
-		case 6: return function(target, action, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5]);
+		case 1: return function(target, action, args[0]);
+		case 2: return function(target, action, args[0], args[1]);
+		case 3: return function(target, action, args[0], args[1], args[2]);
+		case 4: return function(target, action, args[0], args[1], args[2], args[3]);
+		case 5: return function(target, action, args[0], args[1], args[2], args[3], args[4]);
+		case 6: return function(target, action, args[0], args[1], args[2], args[3], args[4], args[5]);
+		case 7: return function(target, action, args[0], args[1], args[2], args[3], args[4], args[5], args[7]);
+		case 8: return function(target, action, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
 	}
 }
 
@@ -174,16 +178,21 @@ static NSCharacterSet *wildcardComponentCharacters;
 	NSArray *wildcardValues = nil;
 	[self matchesPath:request.path wildcardValues:&wildcardValues];
 	
-	NSUInteger numWildcards = [wildcardValues count];	
-	NSString *strings[numWildcards];
-	
-	for(int i=0; i<[self.argumentWildcardMapping count]; i++) {
+	NSUInteger argCount = [wildcardValues count] + 2;
+	id handlerArgs[argCount];
+
+    handlerArgs[0] = request;
+    NSLog(@">>>%@", request);
+    handlerArgs[1] = response;
+	for(int i = 0; i < [wildcardValues count]; i++) {
 		NSUInteger componentIndex = [[self.argumentWildcardMapping objectAtIndex:i] unsignedIntegerValue];
-		strings[i] = [wildcardValues objectAtIndex:componentIndex];
+		handlerArgs[i+2] = [wildcardValues objectAtIndex:componentIndex];
 	}
-		
-	[self.target setRequest:request response:response];
-	[self.target preprocess];
+
+	if([self.target respondsToSelector:@selector(setRequest:response:)])
+        [self.target setRequest:request response:response];
+    if([self.target respondsToSelector:@selector(preprocess)])
+        [self.target preprocess];
 	
 	id target = self.target;
 	SEL action = self.action;
@@ -194,7 +203,7 @@ static NSCharacterSet *wildcardComponentCharacters;
 	
 	if(hasReturnValue) {
 		IMP idFunction = method_getImplementation(actionMethod);
-		id value = [self callIdFunction:idFunction target:target action:action arguments:strings count:numWildcards];
+		id value = [self callIdFunction:idFunction target:target action:action arguments:handlerArgs count:argCount];
 		
 		if([value isKindOfClass:[WATemplate class]])
 			[response appendString:[value result]];
@@ -203,13 +212,14 @@ static NSCharacterSet *wildcardComponentCharacters;
 		else
 			[response appendString:[value description]];
 	}else{
-		void(*voidFunction)(id, SEL, ...) = (void(*)(id, SEL, ...))method_getImplementation(actionMethod);
-		[self callVoidFunction:voidFunction target:target action:action arguments:strings count:numWildcards];
+		void(*voidFunction)(id, SEL, ...) = (void(*)(id, SEL, ...)) method_getImplementation(actionMethod);
+		[self callVoidFunction:voidFunction target:target action:action arguments:handlerArgs count:argCount];
 	}
 	
-	
-	[target postprocess];
-	[target setRequest:nil response:nil];
+    if([self.target respondsToSelector:@selector(postprocess)])
+        [target postprocess];
+	if([self.target respondsToSelector:@selector(setRequest:response:)])
+        [target setRequest:nil response:nil];
 	[response finish];
 }
 
