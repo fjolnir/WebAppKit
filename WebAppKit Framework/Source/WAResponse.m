@@ -323,7 +323,7 @@
     if(scheme == WABasicAuthenticationScheme) {
         response = [NSString stringWithFormat:@"Basic realm=\"%@\"", realm];        
         
-    }else if(scheme == WADigestAuthenticationScheme) {
+    } else if(scheme == WADigestAuthenticationScheme) {
         NSString *nonce = WAGenerateUUIDString();
         NSString *opaque = [realm hexMD5DigestUsingEncoding:NSUTF8StringEncoding];
         response = [NSString stringWithFormat:@"Digest realm=\"%@\", qop=\"auth\", nonce=\"%@\", opaque=\"%@\"", realm, nonce, opaque];

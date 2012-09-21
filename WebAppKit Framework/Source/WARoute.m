@@ -69,7 +69,7 @@ static NSCharacterSet *wildcardComponentCharacters;
             NSString *indexString = [component substringFromIndex:1];
             NSUInteger argumentIndex = [indexString length] ? [indexString integerValue]-1 : wildcardCounter;
             if(argumentIndex > wildcardCount-1) {
-                [NSException raise:NSInvalidArgumentException format:@"Invalid argument index %d in path expression. Must be in the range {1..%d}", (int)argumentIndex+1, (int)wildcardCount];
+                [NSException raise:NSInvalidArgumentException format:@"Invalid argument index %d in path expression. Must be in the range {1..%d} ", (int)argumentIndex+1, (int)wildcardCount];
             }
             if(wildcardMapping[argumentIndex] != [NSNull null]) {
                 [NSException raise:NSInvalidArgumentException format:@"Argument index %d is used more than once in path expression.", (int)argumentIndex+1];    
@@ -125,7 +125,7 @@ static NSCharacterSet *wildcardComponentCharacters;
             if(![self stringIsValidComponentValue:givenComponent])
                 return NO;
             [wildcardValues addObject:givenComponent];
-        } else{
+        } else {
             if(![givenComponent isEqual:component])
                 return NO;
         }
@@ -208,7 +208,7 @@ static NSCharacterSet *wildcardComponentCharacters;
             [response appendBodyData:value];
         else
             [response appendString:[value description]];
-    }else{
+    } else {
         void(*voidFunction)(id, SEL, ...) = (void(*)(id, SEL, ...)) method_getImplementation(actionMethod);
         [self callVoidFunction:voidFunction target:target action:action arguments:handlerArgs count:argCount];
     }

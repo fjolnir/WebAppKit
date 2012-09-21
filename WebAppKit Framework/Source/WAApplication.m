@@ -117,7 +117,7 @@ int WAApplicationMain() {
     _server = server;
     
     __weak WAApplication *weakSelf = self;
-    self.server.requestHandlerFactory = ^(WARequest *request){
+    self.server.requestHandlerFactory = ^(WARequest *request) {
         return [weakSelf handlerForRequest:request];
     };
 }

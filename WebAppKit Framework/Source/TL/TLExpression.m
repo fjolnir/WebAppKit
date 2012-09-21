@@ -56,7 +56,7 @@
             scanner.location = beforePeriod;
         }
     
-    }else if([numberString isEqual:@"-"])
+    } else if([numberString isEqual:@"-"])
         [NSException raise:TLParseException format:@"Expected valid number after -, but got: %@", [scanner scanToken]];
 
     double number = [numberString doubleValue];
@@ -154,7 +154,7 @@
             if([token isEqual:@"!"]) {
                 [prefixTokens addObject:token];
                 [scanner scanToken];
-            }else break;
+            } else break;
         }
         
         // Read value
@@ -169,18 +169,18 @@
             [scanner scanToken];
             part = [self parseExpression:scanner];
             [scanner scanToken]; // )
-        }else if(type == TFTokenTypeNumeric || c == '-' || c == '.') {
+        } else if(type == TFTokenTypeNumeric || c == '-' || c == '.') {
             part = [self parseNumber:scanner];
-        }else if(c == '[') {
+        } else if(c == '[') {
             part = [self parseInvocation:scanner];
             
-        }else if(type == TFTokenTypeIdentifier) {
+        } else if(type == TFTokenTypeIdentifier) {
             part = [[TLIdentifier alloc] initWithName:[scanner scanToken]];
             
-        }else if([token isEqual:@"\""] || [token isEqual:@"@\""]) {
+        } else if([token isEqual:@"\""] || [token isEqual:@"@\""]) {
             part = [self parseStringLiteral:scanner];
             
-        }else{
+        } else {
             [NSException raise:TLParseException format:@"Expected expression, but found: %@", token];
         }
 
@@ -197,7 +197,7 @@
                     [NSException raise:TLParseException format:@"Expected key name after period, but found this: %@", string];
                 [keyPath appendString:string];
                 
-            }while([scanner scanString:@"."]);
+            } while([scanner scanString:@"."]);
             
             part = [[TLOperation alloc] initWithOperator:TLOperatorKeyPathSelection leftOperand:part rightOperand:[[TLObject alloc] initWithObject:keyPath]];
         }
@@ -220,11 +220,11 @@
         
         if([endToken isEqual:token]) {
             break;
-        }else if(operator) {
+        } else if(operator) {
             [scanner scanToken];
             [infixOperators addObject:@(operator)];
         
-        }else break;
+        } else break;
     }
     
     

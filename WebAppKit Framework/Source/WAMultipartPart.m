@@ -50,7 +50,7 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
         if([data length] > WAMultipartPartMaxBodyBufferLength) {
             [self switchToFile];
         }
-    }else{
+    } else {
         [fileHandle writeData:bodyData];
     }
 }
@@ -60,7 +60,7 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
         [fileHandle truncateFileAtOffset:[fileHandle offsetInFile]-2]; // strip CRLF
         [fileHandle closeFile];
         fileHandle = nil;
-    }else{
+    } else {
         [data setLength:[data length]-2];
     }
 }

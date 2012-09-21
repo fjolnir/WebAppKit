@@ -281,18 +281,18 @@ static NSMutableDictionary *WANamedTemplates;
         if(outEndToken) *outEndToken = token;
         return nil;
         
-    }else if([token isEqual:@"debug"]) {
+    } else if([token isEqual:@"debug"]) {
         if(![[scanner scanToken] isEqual:@">"])
             [NSException raise:WATemplateParseException format:@"Expected > after <%%debug, but found something else."];
         return [[WADebugStatement alloc] init];
         
     
-    }else if([token isEqual:@"print"]) {
+    } else if([token isEqual:@"print"]) {
         TLExpression *content = [TLExpression parseExpression:scanner endToken:@">"];
         [scanner scanToken];
         return [[WAPrintStatement alloc] initWithContent:content];
     
-    }else if([token isEqual:@"for"]) {
+    } else if([token isEqual:@"for"]) {
         NSString *variableName = [scanner scanToken];
         if(![[scanner scanToken] isEqual:@"in"])
             [NSException raise:WATemplateParseException format:@"Expected 'in' after <%%for %@", variableName];
@@ -313,7 +313,7 @@ static NSMutableDictionary *WANamedTemplates;
         return [[TLForeachLoop alloc] initWithCollection:collection body:loopBody variableName:variableName];
         
         
-    }else if([token isEqual:@"while"]) {
+    } else if([token isEqual:@"while"]) {
         TLExpression *condition = [TLExpression parseExpression:scanner endToken:@">"];
         if(![[scanner scanToken] isEqual:@">"])
             [NSException raise:WATemplateParseException format:@"Expected > (end of keyword), but found something else"];
@@ -330,7 +330,7 @@ static NSMutableDictionary *WANamedTemplates;
         return [[TLWhileLoop alloc] initWithCondition:condition body:loopBody];        
         
         
-    }else if([token isEqual:@"if"]) {
+    } else if([token isEqual:@"if"]) {
         NSMutableArray *conditions = [NSMutableArray array];
         NSMutableArray *consequents = [NSMutableArray array];
         
@@ -349,7 +349,7 @@ static NSMutableDictionary *WANamedTemplates;
                     [NSException raise:WATemplateParseException format:@"Expected > after <%%end"];
                 break;
             
-            }else if([endToken isEqual:@"elseif"]) {
+            } else if([endToken isEqual:@"elseif"]) {
                 [conditions addObject:[TLExpression parseExpression:scanner endToken:@">"]];
                 
                 if(![[scanner scanToken] isEqual:@">"])
@@ -357,7 +357,7 @@ static NSMutableDictionary *WANamedTemplates;
                 conditionBody = [self scanText:scanner endToken:&endToken];
 
                 
-            }else if([endToken isEqual:@"else"]) {
+            } else if([endToken isEqual:@"else"]) {
                 if(![[scanner scanToken] isEqual:@">"])
                     [NSException raise:WATemplateParseException format:@"Expected > (end of keyword), but found something else"];
                 
@@ -370,7 +370,7 @@ static NSMutableDictionary *WANamedTemplates;
         return [[TLConditional alloc] initWithConditions:conditions consequents:consequents];
         
         
-    }else if([token isEqual:@"set"]) {
+    } else if([token isEqual:@"set"]) {
         NSString *varName = [scanner scanToken];
         if(scanner.lastTokenType != TFTokenTypeIdentifier)
             [NSException raise:WATemplateParseException format:@"Expected valid variable name after <%%set, found: %@", varName];
@@ -382,29 +382,29 @@ static NSMutableDictionary *WANamedTemplates;
         return [[TLAssignment alloc] initWithIdentifier:varName value:value];
         
         
-    }else if([token isEqual:@"content"]) {
+    } else if([token isEqual:@"content"]) {
         if(![[scanner scanToken] isEqual:@">"])
             [NSException raise:WATemplateParseException format:@"Expected > after <%%content, but found something else."];
         return [[WAPrintStatement alloc] initWithContent:[[TLIdentifier alloc] initWithName:WATemplateChildContentKey]];
         
-    }else if([token isEqual:@"template"]) {
+    } else if([token isEqual:@"template"]) {
         NSString *name = [[scanner scanToString:@">"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if(![[scanner scanToken] isEqual:@">"])
             [NSException raise:WATemplateParseException format:@"Expected > after <%%template %@, but found something else.", name];
         return [[WASubTemplateStatement alloc] initWithTemplateName:name];
         
-    }else if([token isEqual:@"token"]) {
+    } else if([token isEqual:@"token"]) {
         if(![[scanner scanToken] isEqual:@">"])
             [NSException raise:WATemplateParseException format:@"Expected > after <%%token, but found something else."];
         return [[WAPrintStatement alloc] initWithContent:[[TLIdentifier alloc] initWithName:WATemplateSessionTokenKey]];
 
         
-    }else if([token isEqual:@"comment"]) {
+    } else if([token isEqual:@"comment"]) {
         [scanner scanToString:@"%>"];
         [scanner scanForLength:2];
         return [[TLNoop alloc] init];
         
-    }else{
+    } else {
         [NSException raise:WATemplateParseException format:@"Found unknown template keyword: <%%%@", token];
         return nil;
     }

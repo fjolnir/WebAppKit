@@ -82,21 +82,21 @@ static const uint64_t WAMPRMaxPartBodyChunkLength = 10000;
         
         [self readPartHeader];
     
-    }else if(tag == WAMPRPartHeader) {
+    } else if(tag == WAMPRPartHeader) {
         currentPart = [[WAMultipartPart alloc] initWithHeaderData:data];
         if(!currentPart) return [self fail];
         [self readPartBody];
         
-    }else if(tag == WAMPRPartBodyChunk) {
+    } else if(tag == WAMPRPartBodyChunk) {
         NSData *boundaryData = [[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 
         NSData *boundaryEndData = [[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 
         if([data isEqual:boundaryData]) {
             [self finishPart];
             [self readPartHeader];
-        }else if([data isEqual:boundaryEndData]){
+        } else if([data isEqual:boundaryEndData]) {
             [self finishPart];
             [self finish];
-        }else{
+        } else {
             [currentPart appendData:data];
             [self readPartBody];
         }

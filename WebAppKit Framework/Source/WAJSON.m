@@ -132,7 +132,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
                     [array addObject:[self objectFromJSValue:indexValue context:ctx]];
                 }
                 return array;
-            }else{
+            } else {
                 NSMutableDictionary *dict = [NSMutableDictionary dictionary];
                 JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(ctx, object);
                 size_t count = JSPropertyNameArrayGetCount(names);

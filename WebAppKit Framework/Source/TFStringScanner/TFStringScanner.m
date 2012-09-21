@@ -107,7 +107,7 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     if([sub isEqual:substring]) {
         location += length;
         return YES;
-    }else return NO;
+    } else return NO;
 }
 
 
@@ -158,11 +158,11 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
         lastTokenType = TFTokenTypeIdentifier;
         return [self scanStringFromCharacterSet:alphanumericCharacters];
         
-    }else if([digitCharacters characterIsMember:firstChar]) {
+    } else if([digitCharacters characterIsMember:firstChar]) {
         lastTokenType = TFTokenTypeNumeric;
         return [self scanStringFromCharacterSet:digitCharacters];
     
-    }else{
+    } else {
         lastTokenType = TFTokenTypeSymbol;
         for(NSString *symbol in multicharSymbols)
             if([self scanString:symbol]) return symbol;
@@ -176,7 +176,7 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     if([[self peekToken] isEqual:matchToken]) {
         [self scanToken];
         return YES;
-    }else return NO;
+    } else return NO;
 }
 
 

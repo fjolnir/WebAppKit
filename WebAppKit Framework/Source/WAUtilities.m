@@ -76,7 +76,7 @@ NSString *WAExtractHeaderValueParameters(NSString *fullValue, NSDictionary **out
             [scanner scanString:@"\"" intoString:NULL];
             if(![scanner scanUpToString:@"\"" intoString:&value]) break;
             [scanner scanString:@"\"" intoString:NULL];
-        }else{
+        } else {
             if(![scanner scanUpToString:@";" intoString:&value]) break;
         }
         
@@ -96,7 +96,7 @@ NSString *WAConstructHTTPStringValue(NSString *string) {
     
     if([string rangeOfCharacterFromSet:invalidTokenSet].length) {
         return [NSString stringWithFormat:@"\"%@\"", [string stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""]];
-    }else{
+    } else {
         return string;
     }    
 }

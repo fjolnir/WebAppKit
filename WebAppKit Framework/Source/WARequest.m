@@ -227,7 +227,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
         }
         self.multipartReader = [[WAMultipartReader alloc] initWithSocket:socket boundary:boundary delegate:self];
     
-    }else if([contentType isEqual:@"application/x-www-form-urlencoded"]) {
+    } else if([contentType isEqual:@"application/x-www-form-urlencoded"]) {
     
         if(contentLength > WARequestMaxStaticBodyLength) {
             handler(NO);
@@ -240,7 +240,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
         }
         [socket readDataToLength:contentLength withTimeout:-1 tag:0];
     
-    }else{
+    } else {
         if(contentLength > WARequestMaxStaticBodyLength) {
             handler(NO);
             return;
@@ -280,7 +280,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             WAUploadedFile *file = [[WAUploadedFile alloc] initWithPart:part];
             if(!file.parameterName) continue;
             files[file.parameterName] = file;
-        }else if(part.data){
+        } else if(part.data) {
             NSString *string = [[NSString alloc] initWithData:part.data encoding:NSUTF8StringEncoding];
             if(!string) continue;
             POSTValues[paramName] = string;
@@ -308,7 +308,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     if([type isCaseInsensitiveLike:@"application/x-www-form-urlencoded"]) {
         NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         self.bodyParameters = [[[self class] dictionaryFromQueryParameters:string encoding:NSUTF8StringEncoding] copy];
-    }else{
+    } else {
         self.body = data;
     }
 }
@@ -521,7 +521,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 
 + (NSArray*)sortedRanges:(NSArray*)ranges {
-    return [ranges sortedArrayUsingComparator:^NSInteger(id obj1, id obj2){
+    return [ranges sortedArrayUsingComparator:^NSInteger(id obj1, id obj2) {
         WAByteRange range1 = [self rangeFromValue:obj1];
         WAByteRange range2 = [self rangeFromValue:obj2];
         if(range1.firstByte < range2.firstByte)
@@ -555,7 +555,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
         if(WAByteRangeIsInvalid(range)) {
             [ranges removeObjectAtIndex:i];
             i--;
-        }else{
+        } else {
             ranges[i] = [NSValue valueWithBytes:&range objCType:@encode(WAByteRange)];
         }
     }

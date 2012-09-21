@@ -38,7 +38,7 @@ WAByteRange WAByteRangeMakeAbsolute(WAByteRange range, uint64_t availableLength)
         if(range.lastByte == 0) return WAByteRangeInvalid;
         range.firstByte = MAX(availableLength-range.lastByte, 0);
         range.lastByte = availableLength-1;
-    }else if(range.lastByte == WABytePositionUndefined) {
+    } else if(range.lastByte == WABytePositionUndefined) {
         if(range.firstByte >= availableLength) return WAByteRangeInvalid;
         range.lastByte = availableLength-1;
     }
@@ -49,7 +49,7 @@ WAByteRange WAByteRangeMakeAbsolute(WAByteRange range, uint64_t availableLength)
 
 
 WAByteRange WAByteRangeMake(uint64_t first, uint64_t last) {
-    return (WAByteRange){first, last};
+    return (WAByteRange){ first, last };
 }
 
 
