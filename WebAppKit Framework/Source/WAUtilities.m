@@ -21,7 +21,7 @@ NSString *WAGenerateUUIDString(void) {
 uint64_t WANanosecondTime() {
     static mach_timebase_info_data_t timebaseInfo;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ (void)mach_timebase_info(&timebaseInfo); });
+    dispatch_once(&onceToken, ^{ mach_timebase_info(&timebaseInfo); });
     return mach_absolute_time() * timebaseInfo.numer / timebaseInfo.denom;
 }
 
