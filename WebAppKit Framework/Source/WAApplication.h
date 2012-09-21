@@ -6,11 +6,9 @@
 //  Copyright 2010 Lighthead Software. All rights reserved.
 //
 
-
 @class WARoute, WASessionGenerator, WASession, WARequest, WAResponse, WARequestHandler;
 
 extern int WAApplicationMain();
-
 
 @interface WAApplication : NSObject
 @property(readonly, strong) WARequest *request;
@@ -20,7 +18,7 @@ extern int WAApplicationMain();
 @property(readonly, nonatomic) WASession *session;
 
 + (int)run;
-
++ (WAApplication *)applicationOnPort:(NSUInteger)port;
 
 - (id)init;
 - (BOOL)start:(NSError**)error;

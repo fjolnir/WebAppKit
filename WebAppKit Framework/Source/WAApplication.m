@@ -96,6 +96,14 @@ int WAApplicationMain() {
 	}
 }
 
++ (WAApplication *)applicationOnPort:(NSUInteger)port
+{
+    WAApplication *app = [[self alloc] init];
+	NSString *interface = [self enableExternalAccess] ? nil : @"localhost";
+    app.server = [[WAServer alloc] initWithPort:port interface:interface];
+    return app;
+}
+
 
 - (id)init {
 	if(!(self = [super init])) return nil;
@@ -186,7 +194,6 @@ int WAApplicationMain() {
 	self.request = req;
 	self.response = resp;
 }
-
 
 - (void)preprocess {}
 - (void)postprocess {}
