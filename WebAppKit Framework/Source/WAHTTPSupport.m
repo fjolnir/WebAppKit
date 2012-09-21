@@ -69,6 +69,3 @@ WAByteRange WAByteRangeCombine(WAByteRange range1, WAByteRange range2) {
 	else
 		return WAByteRangeInvalid;
 }
-
-
-

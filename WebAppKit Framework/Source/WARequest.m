@@ -18,7 +18,6 @@
 static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 
-
 @interface WARequest () <GCDAsyncSocketDelegate, WAMultipartReaderDelegate>
 @property(readwrite, copy) NSString *HTTPVersion;
 @property(readwrite, copy) NSString *method;
@@ -37,9 +36,6 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 @property(copy) void(^completionHandler)(BOOL validity);
 @end
-
-
-
 
 
 @implementation WARequest
@@ -579,13 +575,13 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 }
 
 
-- (void)enumerateCanonicalByteRangesForDataLength:(uint64_t)length usingBlock:(void(^)(WAByteRange range, BOOL *stop))block {
+- (void)enumerateCanonicalByteRangesForDataLength:(uint64_t)length
+                                       usingBlock:(void(^)(WAByteRange range, BOOL *stop))block {
 	BOOL stop = NO;
 	for(NSValue *value in [self canonicalByteRangesForDataLength:length]) {
 		block([[self class] rangeFromValue:value], &stop);
 		if(stop) break;
 	}
 }
-
 
 @end

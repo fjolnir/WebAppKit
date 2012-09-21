@@ -39,5 +39,4 @@
 - (void)addCookie:(WACookie*)cookie;
 - (void)removeCookieNamed:(NSString*)name;
 - (void)requestAuthenticationForRealm:(NSString*)realm scheme:(WAAuthenticationScheme)scheme;
-
 @end

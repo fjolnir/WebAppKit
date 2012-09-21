@@ -18,11 +18,9 @@
 @end
 
 
-
 @implementation WADirectoryHandler
 @synthesize directoryRoot=_directoryRoot;
 @synthesize requestPathRoot=_requestPathRoot;
-
 
 - (id)initWithDirectory:(NSString*)root requestPath:(NSString*)path {
 	if(!(self = [super init])) return nil;

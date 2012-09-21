@@ -13,12 +13,11 @@
 	NSString *temporaryFile;
 	NSFileHandle *fileHandle;
 }
+@property(readonly) NSDictionary *headerFields;
+@property(readonly) NSData *data;
+@property(readonly) NSString *temporaryFile;
 
 - (id)initWithHeaderData:(NSData*)headerData;
 - (void)appendData:(NSData*)bodyData;
 - (void)finish;
-
-@property(readonly) NSDictionary *headerFields;
-@property(readonly) NSData *data;
-@property(readonly) NSString *temporaryFile;
 @end

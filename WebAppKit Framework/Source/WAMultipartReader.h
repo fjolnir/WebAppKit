@@ -15,7 +15,6 @@
 @end
 
 
-
 @interface WAMultipartReader : NSObject <GCDAsyncSocketDelegate> {
 	id<WAMultipartReaderDelegate> delegate;
 	id oldSocketDelegate;
@@ -26,6 +25,7 @@
 	WAMultipartPart *currentPart;
 }
 
-- (id)initWithSocket:(GCDAsyncSocket*)sock boundary:(NSString*)boundaryString delegate:(id<WAMultipartReaderDelegate>)del;
-
+- (id)initWithSocket:(GCDAsyncSocket*)sock
+            boundary:(NSString*)boundaryString
+            delegate:(id<WAMultipartReaderDelegate>)del;
 @end

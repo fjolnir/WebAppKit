@@ -23,11 +23,9 @@
 @end
 
 
-
 @implementation WASessionGenerator
 @synthesize name=_name;
 @synthesize database=_database;
-
 
 + (id)sessionGenerator {
 	return [[self alloc] init];	
@@ -83,6 +81,5 @@
 
 	return [[WASession alloc] initWithDatabase:self.database name:self.name token:token];	
 }
-
 
 @end

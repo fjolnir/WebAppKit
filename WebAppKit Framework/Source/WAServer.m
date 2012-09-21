@@ -15,7 +15,6 @@
 @interface WAServer () <GCDAsyncSocketDelegate>
 @property(strong) GCDAsyncSocket *socket;
 @property(strong) NSMutableSet *connections;
-
 @property(copy) NSString *interface;
 @property NSUInteger port;
 @end
@@ -27,7 +26,6 @@
 @synthesize requestHandlerFactory=_requestHandlerFactory;
 @synthesize interface=_interface;
 @synthesize port=_port;
-
 
 - (id)initWithPort:(NSUInteger)port interface:(NSString*)interface {
 	if(!(self = [super init])) return nil;
@@ -62,6 +60,5 @@
 - (void)connectionDidClose:(WAServerConnection*)connection {
 	[self.connections removeObject:connection];
 }
-
 
 @end

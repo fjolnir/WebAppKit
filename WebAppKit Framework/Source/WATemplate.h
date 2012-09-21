@@ -24,7 +24,6 @@
 - (id)initWithSource:(NSString*)templateString;
 - (id)initWithContentsOfURL:(NSURL*)URL;
 
-
 - (void)setValue:(id)value forKey:(NSString*)key;
 - (id)valueForKey:(NSString*)key;
 

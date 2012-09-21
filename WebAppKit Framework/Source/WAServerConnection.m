@@ -30,7 +30,6 @@
 @synthesize server=_server;
 @synthesize currentRequestHandler=_currentRequestHandler;
 
-
 - (id)initWithSocket:(GCDAsyncSocket*)socket server:(WAServer*)server {
 	if(!(self = [super init])) return nil;
 	
@@ -111,6 +110,5 @@
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData*)data withTag:(long)tag {
 	[self handleRequestData:data];
 }
-
 
 @end

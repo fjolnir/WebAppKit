@@ -33,7 +33,6 @@ int WAApplicationMain() {
 }
 
 
-
 @interface WAApplication ()
 @property(strong, nonatomic) WAServer *server;
 
@@ -47,7 +46,6 @@ int WAApplicationMain() {
 @end
 
 
-
 @implementation WAApplication
 @synthesize server=_server;
 @synthesize requestHandlers=_requestHandlers;
@@ -55,7 +53,6 @@ int WAApplicationMain() {
 @synthesize request=_request;
 @synthesize response=_response;
 @synthesize sessionGenerator=_sessionGenerator;
-
 
 + (uint16_t)port {
 	NSUInteger port = [[[[NSBundle mainBundle] infoDictionary] objectForKey:WAHTTPServerPortKey] unsignedShortValue];
@@ -204,6 +201,5 @@ int WAApplicationMain() {
 		[NSException raise:NSGenericException format:@"The session property cannot be used without first setting a sessionGenerator."];
 	return [self.sessionGenerator sessionForRequest:self.request response:self.response];
 }
-
 
 @end

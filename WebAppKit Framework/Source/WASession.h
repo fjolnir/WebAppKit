@@ -10,10 +10,7 @@
 
 @class WARequest, WAResponse, FMDatabase;
 
-@interface WASession : NSObject {
-
-}
-
+@interface WASession : NSObject
 @property(readonly, copy) NSString *token;
 
 - (id)valueForKey:(NSString*)key;

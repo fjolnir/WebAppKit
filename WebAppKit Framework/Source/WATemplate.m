@@ -37,7 +37,6 @@ NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
 @end
 
 
-
 @implementation WAPrintStatement
 
 - (id)initWithContent:(TLExpression*)expr {
@@ -410,6 +409,5 @@ static NSMutableDictionary *WANamedTemplates;
 		return nil;
 	}
 }
-
 
 @end

@@ -19,7 +19,6 @@ static NSMutableDictionary *extensionMediaTypeMapping;
 @end
 
 
-
 @implementation WAStaticFileHandler
 @synthesize file=_file;
 @synthesize enableCaching=_enableCaching;
@@ -101,6 +100,5 @@ static NSMutableDictionary *extensionMediaTypeMapping;
 	[resp appendBodyData:[NSData dataWithContentsOfFile:self.file]];
 	[resp finish];
 }
-
 
 @end

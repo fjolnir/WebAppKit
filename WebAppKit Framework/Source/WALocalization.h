@@ -18,5 +18,4 @@
 - (id)initWithContentsOfFile:(NSString*)file;
 
 - (NSString*)stringForKeyPath:(NSString*)key;
-
 @end

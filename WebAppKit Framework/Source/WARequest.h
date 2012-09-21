@@ -52,5 +52,6 @@
 
 // Sorted array of absolute combined ranges
 - (NSArray*)canonicalByteRangesForDataLength:(uint64_t)length;
-- (void)enumerateCanonicalByteRangesForDataLength:(uint64_t)length usingBlock:(void(^)(WAByteRange range, BOOL *stop))block;
+- (void)enumerateCanonicalByteRangesForDataLength:(uint64_t)length
+                                       usingBlock:(void(^)(WAByteRange range, BOOL *stop))block;
 @end

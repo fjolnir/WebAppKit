@@ -28,14 +28,12 @@ static NSCharacterSet *wildcardComponentCharacters;
 @end
 
 
-
 @implementation WARoute
 @synthesize components=_components;
 @synthesize argumentWildcardMapping=_argumentWildcardMapping;
 @synthesize method=_method;
 @synthesize target=_target;
 @synthesize action=_action;
-
 
 + (void)initialize {
 	NSMutableCharacterSet *set = [NSMutableCharacterSet characterSetWithRanges:NSMakeRange('a', 26), NSMakeRange('A', 26), NSMakeRange('0', 10), NSMakeRange(0, 0)];
@@ -221,6 +219,5 @@ static NSCharacterSet *wildcardComponentCharacters;
         [target setRequest:nil response:nil];
 	[response finish];
 }
-
 
 @end

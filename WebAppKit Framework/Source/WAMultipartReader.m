@@ -23,11 +23,13 @@ static const uint64_t WAMPRMaxPartBodyChunkLength = 10000;
 @end
 
 
-
 @implementation WAMultipartReader
 
-- (id)initWithSocket:(GCDAsyncSocket*)sock boundary:(NSString*)boundaryString delegate:(id<WAMultipartReaderDelegate>)del {
-	self = [super init];
+- (id)initWithSocket:(GCDAsyncSocket*)sock
+            boundary:(NSString*)boundaryString
+            delegate:(id<WAMultipartReaderDelegate>)del {
+	if(!(self = [super init]))
+        return nil;
 	delegate = del;
 	socket = sock;
 	oldSocketDelegate = [socket delegate];
@@ -100,7 +102,5 @@ static const uint64_t WAMPRMaxPartBodyChunkLength = 10000;
 		}
 	}
 }
-
-
 
 @end

@@ -16,7 +16,6 @@
 
 @implementation WARequestHandler
 
-
 - (BOOL)canHandleRequest:(WARequest*)req {
 	return NO;
 }

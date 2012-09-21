@@ -18,7 +18,6 @@
 @end
 
 
-
 @implementation WAUploadedFile
 @synthesize temporaryFileURL=_temporaryFileURL;
 @synthesize parameterName=_parameterName;

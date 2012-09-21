@@ -17,7 +17,6 @@
 @synthesize expirationDate=_expirationDate;
 @synthesize secure=_secure;
 
-
 - (id)initWithName:(NSString*)cookieName value:(NSString*)cookieValue expirationDate:(NSDate*)date path:(NSString*)p domain:(NSString*)d {
 	if(!(self = [super init])) return nil;
 	
@@ -107,6 +106,5 @@
 + (id)expiredCookieWithName:(NSString*)name {
 	return [[self alloc] initWithName:name value:@"" lifespan:-10000 path:nil domain:nil];
 }
-
 
 @end
