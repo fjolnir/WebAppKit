@@ -48,19 +48,19 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
 @implementation NSNumber (TLOperationExtras)
 
 - (id)TL_add:(id)rhs {
-    return [NSNumber numberWithDouble:[self doubleValue] + [rhs doubleValue]];
+    return @([self doubleValue] + [rhs doubleValue]);
 }
 
 - (id)TL_subtract:(id)rhs {
-    return [NSNumber numberWithDouble:[self doubleValue] - [rhs doubleValue]];
+    return @([self doubleValue] - [rhs doubleValue]);
 }
 
 - (id)TL_multiply:(id)rhs {
-    return [NSNumber numberWithDouble:[self doubleValue] * [rhs doubleValue]];
+    return @([self doubleValue] * [rhs doubleValue]);
 }
 
 - (id)TL_divide:(id)rhs {
-    return [NSNumber numberWithDouble:[self doubleValue] / [rhs doubleValue]];
+    return @([self doubleValue] / [rhs doubleValue]);
 }
 
 @end
@@ -167,7 +167,7 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
             break;
     }
     
-    return [NSNumber numberWithBool:boolValue];    
+    return @(boolValue);    
 }
 
 

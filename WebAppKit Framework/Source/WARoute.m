@@ -64,18 +64,18 @@ static NSCharacterSet *wildcardComponentCharacters;
     
     NSUInteger wildcardCounter = 0;
     for(int i=0; i<[componentStrings count]; i++) {
-        NSString *component = [componentStrings objectAtIndex:i];
+        NSString *component = componentStrings[i];
         if([component hasPrefix:@"*"]) {
             NSString *indexString = [component substringFromIndex:1];
             NSUInteger argumentIndex = [indexString length] ? [indexString integerValue]-1 : wildcardCounter;
             if(argumentIndex > wildcardCount-1) {
                 [NSException raise:NSInvalidArgumentException format:@"Invalid argument index %d in path expression. Must be in the range {1..%d}", (int)argumentIndex+1, (int)wildcardCount];
             }
-            if([wildcardMapping objectAtIndex:argumentIndex] != [NSNull null]) {
+            if(wildcardMapping[argumentIndex] != [NSNull null]) {
                 [NSException raise:NSInvalidArgumentException format:@"Argument index %d is used more than once in path expression.", (int)argumentIndex+1];    
             }
-            [wildcardMapping replaceObjectAtIndex:argumentIndex withObject:[NSNumber numberWithUnsignedInteger:wildcardCounter]];
-            [componentStrings replaceObjectAtIndex:i withObject:@"*"];
+            wildcardMapping[argumentIndex] = @(wildcardCounter);
+            componentStrings[i] = @"*";
             wildcardCounter++;
         }
     }
@@ -119,8 +119,8 @@ static NSCharacterSet *wildcardComponentCharacters;
     NSMutableArray *wildcardValues = [NSMutableArray array];
     
     for(NSUInteger i=0; i<[self.components count]; i++) {
-        NSString *givenComponent = [givenComponents objectAtIndex:i];
-        NSString *component = [self.components objectAtIndex:i];
+        NSString *givenComponent = givenComponents[i];
+        NSString *component = (self.components)[i];
         if([component isEqual:@"*"]) {
             if(![self stringIsValidComponentValue:givenComponent])
                 return NO;
@@ -182,8 +182,8 @@ static NSCharacterSet *wildcardComponentCharacters;
     handlerArgs[0] = request;
     handlerArgs[1] = response;
     for(int i = 0; i < [wildcardValues count]; i++) {
-        NSUInteger componentIndex = [[self.argumentWildcardMapping objectAtIndex:i] unsignedIntegerValue];
-        handlerArgs[i+2] = [wildcardValues objectAtIndex:componentIndex];
+        NSUInteger componentIndex = [(self.argumentWildcardMapping)[i] unsignedIntegerValue];
+        handlerArgs[i+2] = wildcardValues[componentIndex];
     }
 
     if([self.target respondsToSelector:@selector(setRequest:response:)])

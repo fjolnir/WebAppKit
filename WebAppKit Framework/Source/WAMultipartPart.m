@@ -26,7 +26,7 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
         if(split == NSNotFound) continue;
         NSString *key = [fieldString substringToIndex:split];
         NSString *value = [fieldString substringFromIndex:split+2];
-        [fields setObject:value forKey:key];
+        fields[key] = value;
     }
     
     headerFields = fields;
@@ -37,7 +37,7 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
 
 - (void)switchToFile {
     temporaryFile = [NSTemporaryDirectory() stringByAppendingPathComponent:WAGenerateUUIDString()];
-    [[NSFileManager defaultManager] createFileAtPath:temporaryFile contents:data attributes:[NSDictionary dictionary]];
+    [[NSFileManager defaultManager] createFileAtPath:temporaryFile contents:data attributes:@{}];
     data = nil;
     fileHandle = [NSFileHandle fileHandleForWritingAtPath:temporaryFile];
     [fileHandle seekToEndOfFile];

@@ -78,7 +78,7 @@
     CFHTTPMessageRef message = CFHTTPMessageCreateResponse(NULL, self.statusCode, NULL, (__bridge CFStringRef)self.request.HTTPVersion);
     NSDictionary *fields = [self preparedHeaderFields];
     for(NSString *key in fields)
-        CFHTTPMessageSetHeaderFieldValue(message, (__bridge CFStringRef)key, (__bridge CFStringRef)[fields objectForKey:key]);
+        CFHTTPMessageSetHeaderFieldValue(message, (__bridge CFStringRef)key, (__bridge CFStringRef)fields[key]);
     
     return message;
 }
@@ -177,8 +177,8 @@
     if(cachedValue) return cachedValue;
     
     NSDictionary *frameworkInfo = [[NSBundle bundleForClass:[self class]] infoDictionary];
-    NSString *versionString = [frameworkInfo objectForKey:@"CFBundleShortVersionString"];
-    NSString *frameworkName = [frameworkInfo objectForKey:@"CFBundleName"];
+    NSString *versionString = frameworkInfo[@"CFBundleShortVersionString"];
+    NSString *frameworkName = frameworkInfo[@"CFBundleName"];
     
     cachedValue = frameworkName;
     if([versionString length]) cachedValue = [cachedValue stringByAppendingFormat:@"/%@", versionString];
@@ -208,15 +208,15 @@
     );
     
     if(self.progressive)
-        [fields setObject:@"chunked" forKey:@"Transfer-Encoding"];
+        fields[@"Transfer-Encoding"] = @"chunked";
     else if(self.hasBody)
-        [fields setObject:[NSString stringWithFormat:@"%qu", (uint64_t)[self.body length]] forKey:@"Content-Length"];
+        fields[@"Content-Length"] = [NSString stringWithFormat:@"%qu", (uint64_t)[self.body length]];
     
     if([self needsKeepAliveHeader])
-        [fields setObject:@"Keep-Alive" forKey:@"Connection"];
+        fields[@"Connection"] = @"Keep-Alive";
     
     if([self contentType] && self.hasBody)
-        [fields setObject:[self contentType] forKey:@"Content-Type"];
+        fields[@"Content-Type"] = [self contentType];
     
     return fields;
 }
@@ -227,22 +227,22 @@
     
     NSString *cookieString = [[[self.cookies allValues] valueForKey:@"headerFieldValue"] componentsJoinedByString:@", "];
     if([cookieString length])
-        [fields setObject:cookieString forKey:@"Set-Cookie"];
+        fields[@"Set-Cookie"] = cookieString;
     
     if(self.modificationDate)
-        [fields setObject:[WAHTTPDateFormatter() stringFromDate:self.modificationDate] forKey:@"Last-Modified"];
+        fields[@"Last-Modified"] = [WAHTTPDateFormatter() stringFromDate:self.modificationDate];
     
     NSDictionary *defaults = [self defaultHeaderFields];
     for(NSString *key in defaults)
-        if(![fields objectForKey:key])
-            [fields setObject:[defaults objectForKey:key] forKey:key];
+        if(!fields[key])
+            fields[key] = defaults[key];
     
     for(id key in [fields copy])
-        if([[fields objectForKey:key] length] == 0)
+        if([fields[key] length] == 0)
             [fields removeObjectForKey:key];
     
     if(self.allowedOrigins)
-        [fields setObject:[[self.allowedOrigins allObjects] componentsJoinedByString:@" "] forKey:@"Access-Control-Allow-Origin"];
+        fields[@"Access-Control-Allow-Origin"] = [[self.allowedOrigins allObjects] componentsJoinedByString:@" "];
     
     [fields addEntriesFromDictionary:self.headerFields];
     return fields;
@@ -274,14 +274,14 @@
 
 
 - (NSString*)valueForHeaderField:(NSString*)fieldName {
-    return [self.headerFields objectForKey:fieldName];
+    return (self.headerFields)[fieldName];
 }
 
 
 - (void)setValue:(NSString*)value forHeaderField:(NSString*)fieldName {
     [self requireProgressiveHeaderNotSent];
     if(value)
-        [_headerFields setObject:value forKey:fieldName];
+        _headerFields[fieldName] = value;
     else
         [_headerFields removeObjectForKey:fieldName];
 }
@@ -289,7 +289,7 @@
 
 - (void)addCookie:(WACookie*)cookie {
     [self requireProgressiveHeaderNotSent];
-    [_cookies setObject:cookie forKey:cookie.name];
+    _cookies[cookie.name] = cookie;
 }
 
 

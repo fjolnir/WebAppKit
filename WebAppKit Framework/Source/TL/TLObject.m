@@ -30,11 +30,11 @@
 }
 
 + (TLExpression*)trueValue {
-    return [[TLObject alloc] initWithObject:[NSNumber numberWithBool:YES]];
+    return [[TLObject alloc] initWithObject:@YES];
 }
 
 + (TLExpression*)falseValue {
-    return [[TLObject alloc] initWithObject:[NSNumber numberWithBool:NO]];
+    return [[TLObject alloc] initWithObject:@NO];
 }
 
 + (TLExpression*)nilValue {

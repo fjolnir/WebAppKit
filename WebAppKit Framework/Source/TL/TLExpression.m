@@ -60,7 +60,7 @@
         [NSException raise:TLParseException format:@"Expected valid number after -, but got: %@", [scanner scanToken]];
 
     double number = [numberString doubleValue];
-    return [[TLObject alloc] initWithObject:[NSNumber numberWithDouble:number]];
+    return [[TLObject alloc] initWithObject:@(number)];
 }
 
 
@@ -222,7 +222,7 @@
             break;
         }else if(operator) {
             [scanner scanToken];
-            [infixOperators addObject:[NSNumber numberWithInt:operator]];
+            [infixOperators addObject:@(operator)];
         
         }else break;
     }
@@ -234,14 +234,14 @@
     // Boil it all down
     while([infixOperators count]) {
         NSUInteger opIndex = [TLOperation indexOfPrecedingOperatorInArray:infixOperators];
-        TLOperator op = [[infixOperators objectAtIndex:opIndex] intValue];
-        TLOperation *operation = [[TLOperation alloc] initWithOperator:op leftOperand:[expressions objectAtIndex:opIndex] rightOperand:[expressions objectAtIndex:opIndex+1]];
-        [expressions replaceObjectAtIndex:opIndex withObject:operation];
+        TLOperator op = [infixOperators[opIndex] intValue];
+        TLOperation *operation = [[TLOperation alloc] initWithOperator:op leftOperand:expressions[opIndex] rightOperand:expressions[opIndex+1]];
+        expressions[opIndex] = operation;
         [expressions removeObjectAtIndex:opIndex+1];
         [infixOperators removeObjectAtIndex:opIndex];
     }
     
-    return [expressions objectAtIndex:0];
+    return expressions[0];
 }
 
 

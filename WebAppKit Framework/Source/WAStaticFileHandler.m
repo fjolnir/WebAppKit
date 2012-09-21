@@ -31,12 +31,12 @@ static NSMutableDictionary *extensionMediaTypeMapping;
         extensionMediaTypeMapping = [NSMutableDictionary dictionaryWithContentsOfURL:mappingFileURL];
     }
     
-    return [extensionMediaTypeMapping objectForKey:extension];
+    return extensionMediaTypeMapping[extension];
 }
 
 
 + (void)setMediaType:(NSString*)mediaType forFileExtension:(NSString*)extension {
-    [extensionMediaTypeMapping setObject:mediaType forKey:extension];
+    extensionMediaTypeMapping[extension] = mediaType;
 }
 
 
@@ -56,7 +56,7 @@ static NSMutableDictionary *extensionMediaTypeMapping;
     FSRef ref;
     if(FSPathMakeRef((const uint8_t*)[file fileSystemRepresentation], &ref, false) != noErr) return nil;
     CFDictionaryRef values = nil;
-    if(LSCopyItemAttributes(&ref, kLSRolesViewer, (__bridge CFArrayRef)[NSArray arrayWithObject:(__bridge id)kLSItemContentType], &values) != noErr) return nil;
+    if(LSCopyItemAttributes(&ref, kLSRolesViewer, (__bridge CFArrayRef)@[(__bridge id)kLSItemContentType], &values) != noErr) return nil;
     
     NSString *type = (__bridge NSString*)CFDictionaryGetValue(values, kLSItemContentType);
     if(values) CFRelease(values);

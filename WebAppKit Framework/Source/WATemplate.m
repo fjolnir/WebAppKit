@@ -135,14 +135,14 @@ static NSMutableDictionary *WANamedTemplates;
 
 
 + (id)templateNamed:(NSString*)name {
-    WATemplate *template = [WANamedTemplates objectForKey:name];
+    WATemplate *template = WANamedTemplates[name];
     if(!template) {
         NSURL *URL = [[NSBundle mainBundle] URLForResource:name withExtension:@"wat"];
         if(!URL) return nil;
         template = [[self alloc] initWithContentsOfURL:URL];
         // Reload the template every time in dev mode
         if(!WAGetDevelopmentMode())
-            [WANamedTemplates setObject:template forKey:name];
+            WANamedTemplates[name] = template;
     }
     return [template copy];
 }
@@ -182,7 +182,7 @@ static NSMutableDictionary *WANamedTemplates;
 
 
 - (void)setValue:(id)value forKey:(NSString*)key {
-    [mapping setObject:value ?: WATemplateNilValuePlaceholder forKey:key];
+    mapping[key] = value ?: WATemplateNilValuePlaceholder;
 }
 
 
@@ -197,7 +197,7 @@ static NSMutableDictionary *WANamedTemplates;
 
 
 - (id)valueForKey:(NSString*)key {
-    id value = [mapping objectForKey:key];
+    id value = mapping[key];
     if(value == WATemplateNilValuePlaceholder) return nil;
     return value;
 }
@@ -213,7 +213,7 @@ static NSMutableDictionary *WANamedTemplates;
     [innerScope declareValue:output forKey:WATemplateOutputKey];
     
     for(NSString *key in mapping)
-        [innerScope setValue:[self realValueForValue:[mapping objectForKey:key]] forKey:key];
+        [innerScope setValue:[self realValueForValue:mapping[key]] forKey:key];
     
     if(self.session)
         [innerScope setValue:self.session.token forKey:WATemplateSessionTokenKey];
@@ -227,7 +227,7 @@ static NSMutableDictionary *WANamedTemplates;
     [scope setValue:content forKey:WATemplateChildContentKey];
     
     for(NSString *key in childMapping)
-        [scope setValue:[self realValueForValue:[childMapping objectForKey:key]] forKey:key];
+        [scope setValue:[self realValueForValue:childMapping[key]] forKey:key];
 
     NSString *output = [self resultWithScope:scope];
     if(self.parent)

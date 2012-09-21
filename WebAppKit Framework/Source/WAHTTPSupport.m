@@ -13,7 +13,7 @@ WAByteRange WAByteRangeFromRangeSpec(NSString *spec) {
     if([parts count] != 2) return WAByteRangeInvalid;
     
     WAByteRange range = WAByteRangeInvalid;
-    NSString *firstByteString = [parts objectAtIndex:0], *lastByteString = [parts objectAtIndex:1];
+    NSString *firstByteString = parts[0], *lastByteString = parts[1];
     
     if([firstByteString length])
         range.firstByte = [firstByteString longLongValue];

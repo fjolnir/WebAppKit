@@ -28,15 +28,15 @@
 - (id)initWithPart:(WAMultipartPart*)part {
     if(!(self = [super init])) return nil;
     
-    NSString *disposition = [part.headerFields objectForKey:@"Content-Disposition"];
+    NSString *disposition = (part.headerFields)[@"Content-Disposition"];
     NSDictionary *params = nil;
     WAExtractHeaderValueParameters(disposition, &params);
     
-    self.parameterName = [params objectForKey:@"name"];
+    self.parameterName = params[@"name"];
     if(!self.parameterName) return nil;
     
-    self.filename = [params objectForKey:@"filename"];
-    self.mediaType = [part.headerFields objectForKey:@"Content-Type"];
+    self.filename = params[@"filename"];
+    self.mediaType = (part.headerFields)[@"Content-Type"];
     self.temporaryFileURL = [NSURL fileURLWithPath:part.temporaryFile];
     
     if(!self.temporaryFileURL) {

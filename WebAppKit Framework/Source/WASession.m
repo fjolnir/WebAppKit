@@ -59,7 +59,7 @@ static const NSTimeInterval WASessionDefaultLifespan = 31556926;
     self.request = request;
     self.response = response;
     
-    WACookie *cookie = [request cookieForName:name] ?: [[response cookies] objectForKey:name];
+    WACookie *cookie = [request cookieForName:name] ?: [response cookies][name];
     self.token = cookie.value;
     if(!cookie || ![self tokenIsValid:self.token])
         [self refreshCookie];

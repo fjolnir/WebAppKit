@@ -72,20 +72,20 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
 - (id)objectFromReturnValue:(void*)buffer ofType:(const char*)type {
     if(ARGTYPE(id)) return (__bridge id)*(void**)buffer;
     
-    if(ARGTYPE(char)) return [NSNumber numberWithChar:*(char*)buffer];
-    else if(ARGTYPE(int)) return [NSNumber numberWithInt:*(int*)buffer];
-    else if(ARGTYPE(short)) return [NSNumber numberWithShort:*(short*)buffer];
-    else if(ARGTYPE(long)) return [NSNumber numberWithLong:*(long*)buffer];
-    else if(ARGTYPE(long long)) return [NSNumber numberWithLongLong:*(long long*)buffer];
+    if(ARGTYPE(char)) return @(*(char*)buffer);
+    else if(ARGTYPE(int)) return @(*(int*)buffer);
+    else if(ARGTYPE(short)) return @(*(short*)buffer);
+    else if(ARGTYPE(long)) return @(*(long*)buffer);
+    else if(ARGTYPE(long long)) return @(*(long long*)buffer);
     
-    else if(ARGTYPE(unsigned char)) return [NSNumber numberWithUnsignedChar:*(unsigned char*)buffer];
-    else if(ARGTYPE(unsigned int)) return [NSNumber numberWithUnsignedInt:*(unsigned int*)buffer];
-    else if(ARGTYPE(unsigned short)) return [NSNumber numberWithUnsignedShort:*(unsigned short*)buffer];
-    else if(ARGTYPE(unsigned long)) return [NSNumber numberWithUnsignedLong:*(unsigned long*)buffer];
-    else if(ARGTYPE(unsigned long long)) return [NSNumber numberWithUnsignedLongLong:*(unsigned long long*)buffer];
+    else if(ARGTYPE(unsigned char)) return @(*(unsigned char*)buffer);
+    else if(ARGTYPE(unsigned int)) return @(*(unsigned int*)buffer);
+    else if(ARGTYPE(unsigned short)) return @(*(unsigned short*)buffer);
+    else if(ARGTYPE(unsigned long)) return @(*(unsigned long*)buffer);
+    else if(ARGTYPE(unsigned long long)) return @(*(unsigned long long*)buffer);
     
-    else if(ARGTYPE(float)) return [NSNumber numberWithFloat:*(float*)buffer];
-    else if(ARGTYPE(double)) return [NSNumber numberWithDouble:*(double*)buffer];
+    else if(ARGTYPE(float)) return @(*(float*)buffer);
+    else if(ARGTYPE(double)) return @(*(double*)buffer);
     
     else return [NSValue valueWithBytes:buffer objCType:type];
 }

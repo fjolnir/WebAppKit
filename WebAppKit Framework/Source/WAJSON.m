@@ -65,7 +65,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
         if(![key isKindOfClass:[NSString class]]) return NULL;
         
         JSStringRef keyString = JSStringCreateWithCFString((__bridge CFStringRef)key);
-        JSValueRef value = [[self objectForKey:key] JavaScriptRepresentationWithContext:ctx];
+        JSValueRef value = [self[key] JavaScriptRepresentationWithContext:ctx];
         JSObjectSetProperty(ctx, object, keyString, value, kJSPropertyAttributeNone, NULL);
         JSStringRelease(keyString);
     }
@@ -105,9 +105,9 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
         case kJSTypeNull:
             return [NSNull null];
         case kJSTypeBoolean:
-            return [NSNumber numberWithBool:JSValueToBoolean(ctx, value)];
+            return @(JSValueToBoolean(ctx, value));
         case kJSTypeNumber:
-            return [NSNumber numberWithDouble:JSValueToNumber(ctx, value, NULL)];
+            return @(JSValueToNumber(ctx, value, NULL));
         case kJSTypeString: {
             JSStringRef jsString = JSValueToStringCopy(ctx, value, NULL);
             NSString *string = (__bridge_transfer NSString*)JSStringCopyCFString(NULL, jsString);
@@ -141,7 +141,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
                     JSValueRef indexValue = JSObjectGetProperty(ctx, object, name, NULL);
                     NSString *key = (__bridge_transfer NSString*)JSStringCopyCFString(NULL, name);
                     id dictValue = [self objectFromJSValue:indexValue context:ctx];
-                    [dict setObject:dictValue forKey:key];
+                    dict[key] = dictValue;
                 }
                 return dict;
             }

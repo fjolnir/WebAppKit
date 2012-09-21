@@ -80,7 +80,7 @@ NSString *WAExtractHeaderValueParameters(NSString *fullValue, NSDictionary **out
             if(![scanner scanUpToString:@";" intoString:&value]) break;
         }
         
-        [params setObject:value forKey:attribute];
+        params[attribute] = value;
     }
     return basePart;    
 }
@@ -105,11 +105,11 @@ NSString *WAConstructHTTPStringValue(NSString *string) {
 NSString *WAConstructHTTPParameterString(NSDictionary *params) {
     NSMutableString *string = [NSMutableString string];
     for(NSString *name in params) {
-        id value = [params objectForKey:name];
+        id value = params[name];
         if(value == [NSNull null])
             [string appendFormat:@"; %@", WAConstructHTTPStringValue(name)];
         else
-            [string appendFormat:@"; %@=%@", WAConstructHTTPStringValue(name), WAConstructHTTPStringValue([params objectForKey:name])];
+            [string appendFormat:@"; %@=%@", WAConstructHTTPStringValue(name), WAConstructHTTPStringValue(params[name])];
     }
     return string;
 }

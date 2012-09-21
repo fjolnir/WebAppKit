@@ -59,14 +59,14 @@
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObject:@"1" forKey:@"Version"];
     
     if(self.expirationDate) {
-        [params setObject:[NSString stringWithFormat:@"%qu", (uint64_t)[self.expirationDate timeIntervalSinceNow]] forKey:@"Max-Age"];
+        params[@"Max-Age"] = [NSString stringWithFormat:@"%qu", (uint64_t)[self.expirationDate timeIntervalSinceNow]];
         // Compatibility with the old Netscape spec
-        [params setObject:[[[self class] expiryDateFormatter] stringFromDate:self.expirationDate] forKey:@"Expires"];
+        params[@"Expires"] = [[[self class] expiryDateFormatter] stringFromDate:self.expirationDate];
     }
     
-    if(self.path) [params setObject:self.path forKey:@"Path"];    
-    if(self.domain) [params setObject:self.domain forKey:@"Domain"];
-    if(self.secure) [params setObject:[NSNull null] forKey:@"Secure"];
+    if(self.path) params[@"Path"] = self.path;    
+    if(self.domain) params[@"Domain"] = self.domain;
+    if(self.secure) params[@"Secure"] = [NSNull null];
     
     return [baseValue stringByAppendingString:WAConstructHTTPParameterString(params)];
 }

@@ -24,7 +24,7 @@
     while(key) {
         NSString *value = va_arg(list, id);
         if(value)
-            [dict setObject:value forKey:key];
+            dict[key] = value;
         key = va_arg(list, id);
     }
     va_end(list);
@@ -34,7 +34,7 @@
 
 - (NSDictionary*)dictionaryBySettingValue:(id)value forKey:(id)key {
     NSMutableDictionary *dict = [self mutableCopy];
-    [dict setObject:value forKey:key];
+    dict[key] = value;
     return dict;
 }
 
@@ -109,13 +109,13 @@
     NSPredicate *p = [NSPredicate predicateWithFormat:format arguments:list];
     va_end(list);
     NSArray *array = [self filteredArrayUsingPredicate:p];
-    return [array count] ? [array objectAtIndex:0] : nil;
+    return [array count] ? array[0] : nil;
 }
 
 
 - (id)sortedArrayUsingKeyPath:(NSString*)keyPath selector:(SEL)selector ascending:(BOOL)ascending {
     NSSortDescriptor *desc = [NSSortDescriptor sortDescriptorWithKey:keyPath ascending:ascending selector:selector];
-    return [self sortedArrayUsingDescriptors:[NSArray arrayWithObject:desc]];
+    return [self sortedArrayUsingDescriptors:@[desc]];
 }
 
 @end

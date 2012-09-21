@@ -18,13 +18,13 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
 
 + (void)initialize {
     if(!TLConstants) TLConstants = [NSMutableDictionary dictionary];
-    [self defineConstant:@"YES" value:[NSNumber numberWithBool:YES]];
-    [self defineConstant:@"NO" value:[NSNumber numberWithBool:NO]];
+    [self defineConstant:@"YES" value:@YES];
+    [self defineConstant:@"NO" value:@NO];
 }
 
 + (void)defineConstant:(NSString*)name value:(id)value {
     @synchronized(TLConstants) {
-        [TLConstants setObject:value forKey:name];
+        TLConstants[name] = value;
     }
 }
 
@@ -50,7 +50,7 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
 }
 
 - (id)rawValueForKey:(NSString*)key {
-    id value = [mapping objectForKey:key];
+    id value = mapping[key];
     if(value) return value;    
     
     value = [constants valueForKey:key];
@@ -76,8 +76,8 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
 }
 
 - (BOOL)setValue:(id)value ifKeyExists:(NSString*)key {
-    if(mapping && [mapping objectForKey:key]) {
-        [mapping setObject:value forKey:key];
+    if(mapping && mapping[key]) {
+        mapping[key] = value;
         return YES;
     } else return [parent setValue:value ifKeyExists:key];
 }
@@ -87,14 +87,14 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
     
     if(![self setValue:value ifKeyExists:key]) {
         if(!mapping) mapping = [NSMutableDictionary dictionary];
-        [mapping setObject:value forKey:key];
+        mapping[key] = value;
     }
 }
 
 - (void)declareValue:(id)value forKey:(NSString*)key {
     if(!value) value = TLNilPlaceholder;
     if(!mapping) mapping = [NSMutableDictionary dictionary];
-    [mapping setObject:value forKey:key];
+    mapping[key] = value;
 }
 
 - (NSString*)stringByIndentingString:(NSString*)string {

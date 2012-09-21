@@ -23,7 +23,7 @@ static const NSString *WAHTTPServerExternalAccessKey = @"WAHTTPServerExternalAcc
 
 int WAApplicationMain() {
     @autoreleasepool {
-        Class appClass = NSClassFromString([[[NSBundle mainBundle] infoDictionary] objectForKey:@"NSPrincipalClass"]);
+        Class appClass = NSClassFromString([[NSBundle mainBundle] infoDictionary][@"NSPrincipalClass"]);
         if(!appClass) {
             NSLog(@"WAApplicationMain() requires NSPrincipalClass to be set in Info.plist. Set it to your WAApplication subclass or call +run yourself.");
             return 1;
@@ -55,7 +55,7 @@ int WAApplicationMain() {
 @synthesize sessionGenerator=_sessionGenerator;
 
 + (uint16_t)port {
-    NSUInteger port = [[[[NSBundle mainBundle] infoDictionary] objectForKey:WAHTTPServerPortKey] unsignedShortValue];
+    NSUInteger port = [[[NSBundle mainBundle] infoDictionary][WAHTTPServerPortKey] unsignedShortValue];
     if(!port) port = [[NSUserDefaults standardUserDefaults] integerForKey:@"port"];    
     if(!port) NSLog(@"No port number specified. Set WAHTTPServerPort in Info.plist or use the -port argument.");
     return port;
@@ -63,7 +63,7 @@ int WAApplicationMain() {
 
 
 + (BOOL)enableExternalAccess {
-    return [[[[NSBundle mainBundle] infoDictionary] objectForKey:WAHTTPServerExternalAccessKey] boolValue];
+    return [[[NSBundle mainBundle] infoDictionary][WAHTTPServerExternalAccessKey] boolValue];
 }
 
 

@@ -56,7 +56,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 
 + (NSDictionary*)dictionaryFromQueryParameters:(NSString*)query encoding:(NSStringEncoding)enc {
-    if(!query) return [NSDictionary dictionary];
+    if(!query) return @{};
     
     NSScanner *s = [NSScanner scannerWithString:query];
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -77,7 +77,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             continue;
         }
         
-        [params setObject:value forKey:name];
+        params[name] = value;
         if(![s scanString:@"&" intoString:NULL]) break;
     }
     return params;
@@ -102,7 +102,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 - (void)setHeaderFields:(NSDictionary*)fields {
     NSMutableDictionary *newFields = [NSMutableDictionary dictionary];
     for(NSString *name in fields)
-        [newFields setObject:[fields objectForKey:name] forKey:[name lowercaseString]];
+        newFields[[name lowercaseString]] = fields[name];
     _headerFields = newFields;
 }
 
@@ -127,7 +127,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
         NSSet *cookieSet = [WACookie cookiesFromHeaderValue:cookieString];
         NSMutableDictionary *cookieDict = [NSMutableDictionary dictionary];
         for(WACookie *cookie in cookieSet)
-            [cookieDict setObject:cookie forKey:cookie.name];
+            cookieDict[cookie.name] = cookie;
         self.cookies = [cookieDict copy];
     }
     
@@ -153,12 +153,12 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 
 - (NSString*)valueForQueryParameter:(NSString*)name {
-    return [self.queryParameters objectForKey:name];
+    return (self.queryParameters)[name];
 }
 
 
 - (NSString*)valueForHeaderField:(NSString*)fieldName {
-    return [self.headerFields objectForKey:[fieldName lowercaseString]];
+    return (self.headerFields)[[fieldName lowercaseString]];
 }
 
 
@@ -170,12 +170,12 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 
 - (NSString*)valueForBodyParameter:(NSString*)name {
-    return [self.bodyParameters objectForKey:name];
+    return (self.bodyParameters)[name];
 }
 
 
 - (WACookie*)cookieForName:(NSString*)name {
-    return [self.cookies objectForKey:name];
+    return (self.cookies)[name];
 }
 
 
@@ -220,7 +220,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     NSString *contentType = [self valueForHeaderField:@"Content-Type" parameters:&params];
     
     if([contentType isEqual:@"multipart/form-data"]) {
-        NSString *boundary = [params objectForKey:@"boundary"];
+        NSString *boundary = params[@"boundary"];
         if(!boundary) {
             handler(NO);
             return;
@@ -271,19 +271,19 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     
     for(WAMultipartPart *part in parts) {
         NSDictionary *params = nil;
-        WAExtractHeaderValueParameters([part.headerFields objectForKey:@"Content-Disposition"]?:@"", &params);
-        BOOL isFile = ([params objectForKey:@"filename"] != nil);
-        NSString *paramName = [params objectForKey:@"name"];
+        WAExtractHeaderValueParameters((part.headerFields)[@"Content-Disposition"]?:@"", &params);
+        BOOL isFile = (params[@"filename"] != nil);
+        NSString *paramName = params[@"name"];
         if(!paramName) continue;
         
         if(isFile) {
             WAUploadedFile *file = [[WAUploadedFile alloc] initWithPart:part];
             if(!file.parameterName) continue;
-            [files setObject:file forKey:file.parameterName];
+            files[file.parameterName] = file;
         }else if(part.data){
             NSString *string = [[NSString alloc] initWithData:part.data encoding:NSUTF8StringEncoding];
             if(!string) continue;
-            [POSTValues setObject:string forKey:paramName];
+            POSTValues[paramName] = string;
         }
     }
     
@@ -373,7 +373,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     NSArray *typeComponents = [type componentsSeparatedByString:@"/"];
     NSArray *patternComponents = [pattern componentsSeparatedByString:@"/"];
     if([typeComponents count] != 2 || [patternComponents count] != 2) return NO;
-    return [[patternComponents objectAtIndex:1] isEqual:@"*"] && [[typeComponents objectAtIndex:0] isCaseInsensitiveLike:[patternComponents objectAtIndex:0]];
+    return [patternComponents[1] isEqual:@"*"] && [typeComponents[0] isCaseInsensitiveLike:patternComponents[0]];
 }
 
 
@@ -390,18 +390,18 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 
 - (WAUploadedFile*)uploadedFileForName:(NSString*)name {
-    return [self.uploadedFilesMapping objectForKey:name];
+    return (self.uploadedFilesMapping)[name];
 }
 
 #pragma mark Authentication
 
 
 + (NSString*)digestResponseFromCredentialHash:(NSString*)HA1 method:(NSString*)method authorizationData:(NSDictionary*)data {
-    NSString *uri = [data objectForKey:@"uri"];
-    NSString *nonce = [data objectForKey:@"nonce"];
-    NSString *nonceCount = [data objectForKey:@"nc"];
-    NSString *clientNonce = [data objectForKey:@"cnonce"];
-    NSString *qop = [data objectForKey:@"qop"];
+    NSString *uri = data[@"uri"];
+    NSString *nonce = data[@"nonce"];
+    NSString *nonceCount = data[@"nc"];
+    NSString *clientNonce = data[@"cnonce"];
+    NSString *qop = data[@"qop"];
     
     NSString *clearHA2 = [NSString stringWithFormat:@"%@:%@", method, uri];
     NSString *HA2 = [clearHA2 hexMD5DigestUsingEncoding:NSUTF8StringEncoding];
@@ -436,7 +436,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
         [scanner scanUpToString:@"," intoString:&value];
         
         value = [value stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\""]];
-        [values setObject:value forKey:key];
+        values[key] = value;
     }
     
     return values;
@@ -447,12 +447,12 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     if(self.authenticationScheme != WABasicAuthenticationScheme) return NO;
     NSArray *words = [[self valueForHeaderField:@"Authorization"] componentsSeparatedByString:@" "];
     if([words count] < 2) return NO;
-    NSString *encodedCredentials = [words objectAtIndex:1];
+    NSString *encodedCredentials = words[1];
     
     NSArray *parts = [[encodedCredentials stringByDecodingBase64UsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@":"];
     if([parts count] != 2) return NO;
-    if(outUser) *outUser = [parts objectAtIndex:0];
-    if(outPassword) *outPassword = [parts objectAtIndex:1];
+    if(outUser) *outUser = parts[0];
+    if(outPassword) *outPassword = parts[1];
     return YES;
 }
 
@@ -461,12 +461,12 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     if(self.authenticationScheme != WADigestAuthenticationScheme) return NO;
     NSDictionary *data = [self authorizationValues];
     NSString *correctResponse = [[self class] digestResponseFromCredentialHash:hash method:self.method authorizationData:data];
-    return [[data objectForKey:@"response"] isEqual:correctResponse];
+    return [data[@"response"] isEqual:correctResponse];
 }
 
 
 - (NSString*)digestAuthenticationRealm {
-    return [[self authorizationValues] objectForKey:@"realm"];
+    return [self authorizationValues][@"realm"];
 }
 
 
@@ -536,10 +536,10 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 
 + (NSArray*)canonicalRanges:(NSArray*)ranges {
     ranges = [self sortedRanges:ranges];
-    NSMutableArray *selection = [NSMutableArray arrayWithObject:[ranges objectAtIndex:0]];
+    NSMutableArray *selection = [NSMutableArray arrayWithObject:ranges[0]];
     for(NSValue *range in ranges) {
         NSValue *combo = [self valueByCombiningRange:range range:[selection lastObject]];
-        if(combo) [selection replaceObjectAtIndex:[selection count]-1 withObject:combo];
+        if(combo) selection[[selection count]-1] = combo;
         else [selection addObject:range];
     }
     return selection;
@@ -550,13 +550,13 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     NSMutableArray *ranges = [array mutableCopy];
     for(int i=0; i<[ranges count]; i++) {
         WAByteRange range;
-        [[ranges objectAtIndex:i] getValue:&range];
+        [ranges[i] getValue:&range];
         range = WAByteRangeMakeAbsolute(range, length);
         if(WAByteRangeIsInvalid(range)) {
             [ranges removeObjectAtIndex:i];
             i--;
         }else{
-            [ranges replaceObjectAtIndex:i withObject:[NSValue valueWithBytes:&range objCType:@encode(WAByteRange)]];
+            ranges[i] = [NSValue valueWithBytes:&range objCType:@encode(WAByteRange)];
         }
     }
     return ranges;
