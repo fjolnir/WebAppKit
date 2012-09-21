@@ -28,37 +28,37 @@
 @synthesize port=_port;
 
 - (id)initWithPort:(NSUInteger)port interface:(NSString*)interface {
-	if(!(self = [super init])) return nil;
-	
-	self.port = port;
-	self.interface = interface;
-	
-	self.connections = [NSMutableSet set];
-	self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
-	return self;
+    if(!(self = [super init])) return nil;
+    
+    self.port = port;
+    self.interface = interface;
+    
+    self.connections = [NSMutableSet set];
+    self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+    return self;
 }
 
 
 - (BOOL)start:(NSError**)error {
-	return [self.socket acceptOnInterface:self.interface port:self.port error:error];
+    return [self.socket acceptOnInterface:self.interface port:self.port error:error];
 }
 
 
 - (void)invalidate {
-	[self.socket disconnect];
-	self.socket = nil;
+    [self.socket disconnect];
+    self.socket = nil;
 }
 
 
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket {
-	NSAssert(self.requestHandlerFactory != nil, @"requestHandlerFactory not set!");
-	WAServerConnection *connection = [[WAServerConnection alloc] initWithSocket:newSocket server:self];
-	[self.connections addObject:connection];
+    NSAssert(self.requestHandlerFactory != nil, @"requestHandlerFactory not set!");
+    WAServerConnection *connection = [[WAServerConnection alloc] initWithSocket:newSocket server:self];
+    [self.connections addObject:connection];
 }
 
 
 - (void)connectionDidClose:(WAServerConnection*)connection {
-	[self.connections removeObject:connection];
+    [self.connections removeObject:connection];
 }
 
 @end

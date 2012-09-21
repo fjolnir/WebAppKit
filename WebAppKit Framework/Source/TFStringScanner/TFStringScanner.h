@@ -1,17 +1,17 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
-	TFTokenTypeIdentifier,
-	TFTokenTypeNumeric,
-	TFTokenTypeSymbol,
+    TFTokenTypeIdentifier,
+    TFTokenTypeNumeric,
+    TFTokenTypeSymbol,
 } TFTokenType;
 
 
 @interface TFStringScanner : NSObject {
-	NSString *content;
-	NSUInteger location;
-	NSMutableArray *multicharSymbols;
-	TFTokenType lastTokenType;
+    NSString *content;
+    NSUInteger location;
+    NSMutableArray *multicharSymbols;
+    TFTokenType lastTokenType;
 }
 
 @property(readonly) NSString *string;

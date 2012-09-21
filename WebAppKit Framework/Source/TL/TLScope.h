@@ -10,9 +10,9 @@
 
 
 @interface TLScope : NSObject {
-	TLScope *parent;
-	NSMutableDictionary *mapping;
-	NSDictionary *constants;
+    TLScope *parent;
+    NSMutableDictionary *mapping;
+    NSDictionary *constants;
 }
 
 + (void)defineConstant:(NSString*)name value:(id)value;

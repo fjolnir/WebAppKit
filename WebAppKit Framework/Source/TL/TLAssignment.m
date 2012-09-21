@@ -13,14 +13,14 @@
 @implementation TLAssignment
 
 - (id)initWithIdentifier:(NSString*)lhs value:(TLExpression*)rhs {
-	self = [super init];
-	identifier = [lhs copy];
-	value = rhs;
-	return self;
+    self = [super init];
+    identifier = [lhs copy];
+    value = rhs;
+    return self;
 }
 
 - (void)invokeInScope:(TLScope *)scope {
-	[scope setValue:[value evaluateWithScope:scope] forKey:identifier];
+    [scope setValue:[value evaluateWithScope:scope] forKey:identifier];
 }
 
 @end

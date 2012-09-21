@@ -10,8 +10,8 @@
 @class TLExpression;
 
 @interface TLAssignment : TLStatement {
-	NSString *identifier;
-	TLExpression *value;
+    NSString *identifier;
+    TLExpression *value;
 }
 
 - (id)initWithIdentifier:(NSString*)lhs value:(TLExpression*)rhs;

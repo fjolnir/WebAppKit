@@ -10,9 +10,9 @@
 #import "GCDAsyncSocket.h"
 
 enum {
-	WAMPRInitialBoundary,
-	WAMPRPartHeader,
-	WAMPRPartBodyChunk,
+    WAMPRInitialBoundary,
+    WAMPRPartHeader,
+    WAMPRPartBodyChunk,
 };
 
 static const uint64_t WAMPRMaxPartHeaderLength = 10000;
@@ -28,79 +28,79 @@ static const uint64_t WAMPRMaxPartBodyChunkLength = 10000;
 - (id)initWithSocket:(GCDAsyncSocket*)sock
             boundary:(NSString*)boundaryString
             delegate:(id<WAMultipartReaderDelegate>)del {
-	if(!(self = [super init]))
+    if(!(self = [super init]))
         return nil;
-	delegate = del;
-	socket = sock;
-	oldSocketDelegate = [socket delegate];
-	[socket setDelegate:self];
-	boundary = [boundaryString copy];
-	parts = [NSMutableArray array];
-	[self readInitialBoundary];
-	return self;
+    delegate = del;
+    socket = sock;
+    oldSocketDelegate = [socket delegate];
+    [socket setDelegate:self];
+    boundary = [boundaryString copy];
+    parts = [NSMutableArray array];
+    [self readInitialBoundary];
+    return self;
 }
 
 
 - (void)fail {
-	[socket setDelegate:oldSocketDelegate];
-	[delegate multipartReaderFailed:self];
+    [socket setDelegate:oldSocketDelegate];
+    [delegate multipartReaderFailed:self];
 }
 
 
 - (void)readInitialBoundary {
-	[socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:10 maxLength:[boundary length]+4 tag:WAMPRInitialBoundary];
+    [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:10 maxLength:[boundary length]+4 tag:WAMPRInitialBoundary];
 }
 
 
 - (void)readPartHeader {
-	NSData *terminator = [NSData dataWithBytes:"\r\n\r\n" length:4];
-	[socket readDataToData:terminator withTimeout:10 maxLength:WAMPRMaxPartHeaderLength tag:WAMPRPartHeader];
+    NSData *terminator = [NSData dataWithBytes:"\r\n\r\n" length:4];
+    [socket readDataToData:terminator withTimeout:10 maxLength:WAMPRMaxPartHeaderLength tag:WAMPRPartHeader];
 }
 
 
 - (void)readPartBody {
-	[socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:60 maxLength:WAMPRMaxPartBodyChunkLength tag:WAMPRPartBodyChunk];
+    [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:60 maxLength:WAMPRMaxPartBodyChunkLength tag:WAMPRPartBodyChunk];
 }
 
 - (void)finishPart {
-	[currentPart finish];
-	[parts addObject:currentPart];
-	currentPart = nil;
+    [currentPart finish];
+    [parts addObject:currentPart];
+    currentPart = nil;
 }
 
 - (void)finish {
-	[delegate multipartReader:self finishedWithParts:parts];
+    [delegate multipartReader:self finishedWithParts:parts];
 }
 
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
-	if(tag == WAMPRInitialBoundary) {
-		NSString *correctString = [NSString stringWithFormat:@"--%@\r\n", boundary];
-		NSString *givenString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-		if(![givenString isEqual:correctString])
-			return [self fail];
-		
-		[self readPartHeader];
-	
-	}else if(tag == WAMPRPartHeader) {
-		currentPart = [[WAMultipartPart alloc] initWithHeaderData:data];
-		if(!currentPart) return [self fail];
-		[self readPartBody];
-		
-	}else if(tag == WAMPRPartBodyChunk) {
-		NSData *boundaryData = [[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 
-		NSData *boundaryEndData = [[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 
-		if([data isEqual:boundaryData]) {
-			[self finishPart];
-			[self readPartHeader];
-		}else if([data isEqual:boundaryEndData]){
-			[self finishPart];
-			[self finish];
-		}else{
-			[currentPart appendData:data];
-			[self readPartBody];
-		}
-	}
+    if(tag == WAMPRInitialBoundary) {
+        NSString *correctString = [NSString stringWithFormat:@"--%@\r\n", boundary];
+        NSString *givenString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if(![givenString isEqual:correctString])
+            return [self fail];
+        
+        [self readPartHeader];
+    
+    }else if(tag == WAMPRPartHeader) {
+        currentPart = [[WAMultipartPart alloc] initWithHeaderData:data];
+        if(!currentPart) return [self fail];
+        [self readPartBody];
+        
+    }else if(tag == WAMPRPartBodyChunk) {
+        NSData *boundaryData = [[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 
+        NSData *boundaryEndData = [[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 
+        if([data isEqual:boundaryData]) {
+            [self finishPart];
+            [self readPartHeader];
+        }else if([data isEqual:boundaryEndData]){
+            [self finishPart];
+            [self finish];
+        }else{
+            [currentPart appendData:data];
+            [self readPartBody];
+        }
+    }
 }
 
 @end

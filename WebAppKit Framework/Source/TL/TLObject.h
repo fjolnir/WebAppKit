@@ -9,7 +9,7 @@
 #import "TLExpression.h"
 
 @interface TLObject : TLExpression {
-	id object;
+    id object;
 }
 
 - (id)initWithObject:(id)obj;

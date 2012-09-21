@@ -8,10 +8,10 @@
 
 
 @interface WAMultipartPart : NSObject {
-	NSDictionary *headerFields;
-	NSMutableData *data;
-	NSString *temporaryFile;
-	NSFileHandle *fileHandle;
+    NSDictionary *headerFields;
+    NSMutableData *data;
+    NSString *temporaryFile;
+    NSFileHandle *fileHandle;
 }
 @property(readonly) NSDictionary *headerFields;
 @property(readonly) NSData *data;

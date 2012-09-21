@@ -11,7 +11,7 @@
 @implementation TLStatement
 
 - (void)invokeInScope:(TLScope*)scope {
-	[NSException raise:NSInternalInconsistencyException format:@"%@ must override %@", [self class], NSStringFromSelector(_cmd)];
+    [NSException raise:NSInternalInconsistencyException format:@"%@ must override %@", [self class], NSStringFromSelector(_cmd)];
 }
 
 @end

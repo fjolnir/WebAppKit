@@ -31,84 +31,84 @@
 @synthesize currentRequestHandler=_currentRequestHandler;
 
 - (id)initWithSocket:(GCDAsyncSocket*)socket server:(WAServer*)server {
-	if(!(self = [super init])) return nil;
-	
-	self.server = server;
-	self.socket = socket;
-	self.socket.delegate = self;
-	
-	[self readNewRequest];
-	return self;
+    if(!(self = [super init])) return nil;
+    
+    self.server = server;
+    self.socket = socket;
+    self.socket.delegate = self;
+    
+    [self readNewRequest];
+    return self;
 }
 
 
 - (void)readNewRequest {
-	static NSData *crlfcrlf;
+    static NSData *crlfcrlf;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ crlfcrlf = [NSData dataWithBytes:"\r\n\r\n" length:4]; });
-	[self.socket readDataToData:crlfcrlf withTimeout:60 maxLength:100000 tag:0];
+    [self.socket readDataToData:crlfcrlf withTimeout:60 maxLength:100000 tag:0];
 }
 
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
-	[self.currentRequestHandler connectionDidClose];
-	[self.server connectionDidClose:self];
-	self.socket = nil;
+    [self.currentRequestHandler connectionDidClose];
+    [self.server connectionDidClose:self];
+    self.socket = nil;
 }
 
 
 - (void)handleRequest:(WARequest*)request {
-	uint64_t start = WANanosecondTime();
-	
-	self.currentRequestHandler = self.server.requestHandlerFactory(request);
-	
-	WAResponse *response = [[WAResponse alloc] initWithRequest:request socket:self.socket];
-	__weak WAResponse *weakResponse = response;
-	
-	response.completionHandler = ^(BOOL keepAlive) {
-		uint64_t duration = WANanosecondTime()-start;
-		if(WAGetDevelopmentMode())
-			NSLog(@"%d %@ - %.02f ms", (int)weakResponse.statusCode, request.path, duration/1000000.0);
-		self.currentRequestHandler = nil;
-		[request invalidate];
-		
-		if(keepAlive)
-			[self readNewRequest];
-		else
-			[self.socket disconnectAfterWriting];
-	};
-	
+    uint64_t start = WANanosecondTime();
+    
+    self.currentRequestHandler = self.server.requestHandlerFactory(request);
+    
+    WAResponse *response = [[WAResponse alloc] initWithRequest:request socket:self.socket];
+    __weak WAResponse *weakResponse = response;
+    
+    response.completionHandler = ^(BOOL keepAlive) {
+        uint64_t duration = WANanosecondTime()-start;
+        if(WAGetDevelopmentMode())
+            NSLog(@"%d %@ - %.02f ms", (int)weakResponse.statusCode, request.path, duration/1000000.0);
+        self.currentRequestHandler = nil;
+        [request invalidate];
+        
+        if(keepAlive)
+            [self readNewRequest];
+        else
+            [self.socket disconnectAfterWriting];
+    };
+    
 
-	@try {
-		[self.currentRequestHandler handleRequest:request response:response socket:self.socket];
-	}@catch(NSException *e) {
-		WATemplate *template = [[WATemplate alloc] initWithContentsOfURL:[[NSBundle bundleForClass:[self class]] URLForResource:@"Exception" withExtension:@"wat"]];
-		[template setValue:e forKey:@"exception"];
-		[response finishWithErrorString:[template result]];
-	}
+    @try {
+        [self.currentRequestHandler handleRequest:request response:response socket:self.socket];
+    }@catch(NSException *e) {
+        WATemplate *template = [[WATemplate alloc] initWithContentsOfURL:[[NSBundle bundleForClass:[self class]] URLForResource:@"Exception" withExtension:@"wat"]];
+        [template setValue:e forKey:@"exception"];
+        [response finishWithErrorString:[template result]];
+    }
 }
 
 
 - (void)handleRequestData:(NSData*)data {
-	WARequest *request = [[WARequest alloc] initWithHeaderData:data];
-	if(!request) {
-		[self.socket disconnectAfterWriting];
-		return;
-	}
-	
-	[request readBodyFromSocket:self.socket completionHandler:^(BOOL validity) {
-		[self.socket setDelegate:self];
-		
-		if(validity)
-			[self handleRequest:request];
-		else
-			[self.socket disconnectAfterWriting];
-	}];
+    WARequest *request = [[WARequest alloc] initWithHeaderData:data];
+    if(!request) {
+        [self.socket disconnectAfterWriting];
+        return;
+    }
+    
+    [request readBodyFromSocket:self.socket completionHandler:^(BOOL validity) {
+        [self.socket setDelegate:self];
+        
+        if(validity)
+            [self handleRequest:request];
+        else
+            [self.socket disconnectAfterWriting];
+    }];
 }
 
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData*)data withTag:(long)tag {
-	[self handleRequestData:data];
+    [self handleRequestData:data];
 }
 
 @end

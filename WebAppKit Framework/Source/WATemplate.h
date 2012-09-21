@@ -9,10 +9,10 @@
 @class TLStatement, WASession;
 
 @interface WATemplate : NSObject <NSCopying> {
-	TLStatement *body;
-	NSMutableDictionary *mapping;
-	WATemplate *parent;
-	WASession *session;
+    TLStatement *body;
+    NSMutableDictionary *mapping;
+    WATemplate *parent;
+    WASession *session;
 }
 
 @property(retain) WATemplate *parent;

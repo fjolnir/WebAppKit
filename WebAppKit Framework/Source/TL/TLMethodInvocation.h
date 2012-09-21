@@ -9,9 +9,9 @@
 #import "TLExpression.h"
 
 @interface TLMethodInvocation : TLExpression {
-	TLExpression *target;
-	SEL selector;
-	NSArray *arguments;
+    TLExpression *target;
+    SEL selector;
+    NSArray *arguments;
 }
 
 - (id)initWithReceiver:(TLExpression*)expr selector:(SEL)sel arguments:(NSArray*)args;

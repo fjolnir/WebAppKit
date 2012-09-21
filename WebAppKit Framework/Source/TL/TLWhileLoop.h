@@ -9,8 +9,8 @@
 #import "TL.h"
 
 @interface TLWhileLoop : TLStatement {
-	TLExpression *condition;
-	TLStatement *body;
+    TLExpression *condition;
+    TLStatement *body;
 }
 
 - (id)initWithCondition:(TLExpression*)expr body:(TLStatement*)bodyStatement;

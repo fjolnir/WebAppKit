@@ -12,33 +12,33 @@
 @implementation TLObject
 
 - (id)initWithObject:(id)obj {
-	self = [super init];
-	object = obj;
-	return self;
+    self = [super init];
+    object = obj;
+    return self;
 }
 
 - (id)evaluateWithScope:(TLScope *)scope {
-	return object;
+    return object;
 }
 
 - (BOOL)constant {
-	return [object isKindOfClass:[NSNumber class]];
+    return [object isKindOfClass:[NSNumber class]];
 }
 
 - (NSString*)description {
-	return [NSString stringWithFormat:@"<Object: %@>", object];
+    return [NSString stringWithFormat:@"<Object: %@>", object];
 }
 
 + (TLExpression*)trueValue {
-	return [[TLObject alloc] initWithObject:[NSNumber numberWithBool:YES]];
+    return [[TLObject alloc] initWithObject:[NSNumber numberWithBool:YES]];
 }
 
 + (TLExpression*)falseValue {
-	return [[TLObject alloc] initWithObject:[NSNumber numberWithBool:NO]];
+    return [[TLObject alloc] initWithObject:[NSNumber numberWithBool:NO]];
 }
 
 + (TLExpression*)nilValue {
-	return [[TLObject alloc] initWithObject:nil];	
+    return [[TLObject alloc] initWithObject:nil];    
 }
 
 @end

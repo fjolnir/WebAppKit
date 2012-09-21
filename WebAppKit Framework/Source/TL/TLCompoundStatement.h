@@ -9,7 +9,7 @@
 #import "TLStatement.h"
 
 @interface TLCompoundStatement : TLStatement {
-	NSArray *statements;
+    NSArray *statements;
 }
 
 - (id)initWithStatements:(NSArray*)array;

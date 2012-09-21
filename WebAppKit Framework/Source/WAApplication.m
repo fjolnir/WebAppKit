@@ -22,14 +22,14 @@ static const NSString *WAHTTPServerExternalAccessKey = @"WAHTTPServerExternalAcc
 
 
 int WAApplicationMain() {
-	@autoreleasepool {
-		Class appClass = NSClassFromString([[[NSBundle mainBundle] infoDictionary] objectForKey:@"NSPrincipalClass"]);
-		if(!appClass) {
-			NSLog(@"WAApplicationMain() requires NSPrincipalClass to be set in Info.plist. Set it to your WAApplication subclass or call +run yourself.");
-			return 1;
-		}
-		return [appClass run];
-	}
+    @autoreleasepool {
+        Class appClass = NSClassFromString([[[NSBundle mainBundle] infoDictionary] objectForKey:@"NSPrincipalClass"]);
+        if(!appClass) {
+            NSLog(@"WAApplicationMain() requires NSPrincipalClass to be set in Info.plist. Set it to your WAApplication subclass or call +run yourself.");
+            return 1;
+        }
+        return [appClass run];
+    }
 }
 
 
@@ -55,84 +55,84 @@ int WAApplicationMain() {
 @synthesize sessionGenerator=_sessionGenerator;
 
 + (uint16_t)port {
-	NSUInteger port = [[[[NSBundle mainBundle] infoDictionary] objectForKey:WAHTTPServerPortKey] unsignedShortValue];
-	if(!port) port = [[NSUserDefaults standardUserDefaults] integerForKey:@"port"];	
-	if(!port) NSLog(@"No port number specified. Set WAHTTPServerPort in Info.plist or use the -port argument.");
-	return port;
+    NSUInteger port = [[[[NSBundle mainBundle] infoDictionary] objectForKey:WAHTTPServerPortKey] unsignedShortValue];
+    if(!port) port = [[NSUserDefaults standardUserDefaults] integerForKey:@"port"];    
+    if(!port) NSLog(@"No port number specified. Set WAHTTPServerPort in Info.plist or use the -port argument.");
+    return port;
 }
 
 
 + (BOOL)enableExternalAccess {
-	return [[[[NSBundle mainBundle] infoDictionary] objectForKey:WAHTTPServerExternalAccessKey] boolValue];
+    return [[[[NSBundle mainBundle] infoDictionary] objectForKey:WAHTTPServerExternalAccessKey] boolValue];
 }
 
 
 + (int)run {
-	uint16_t port = [self port];
-	if(!port) return EXIT_FAILURE;
-	NSString *interface = [self enableExternalAccess] ? nil : @"localhost";
-	
-	WAApplication *app = [[self alloc] init];
-	app.server = [[WAServer alloc] initWithPort:port interface:interface];
-	
-	NSString *publicDir = [[NSBundle bundleForClass:self] pathForResource:@"public" ofType:nil]; 
-	WADirectoryHandler *publicHandler = [[WADirectoryHandler alloc] initWithDirectory:publicDir requestPath:@"/"];
-	[app addRequestHandler:publicHandler];
-	
-	NSError *error;
-	if(![app start:&error]) {
-		NSLog(@"*** Exiting. [%@ start:] failed: %@", NSStringFromClass(self), error);
-		return EXIT_FAILURE;
-	}
-	
-	NSLog(@"WebAppKit started on port %hu", port);
-	NSLog(@"http://localhost:%hu/", port);
-	
-	for(;;) @autoreleasepool {
-		[[NSRunLoop currentRunLoop] run];
-	}
+    uint16_t port = [self port];
+    if(!port) return EXIT_FAILURE;
+    NSString *interface = [self enableExternalAccess] ? nil : @"localhost";
+    
+    WAApplication *app = [[self alloc] init];
+    app.server = [[WAServer alloc] initWithPort:port interface:interface];
+    
+    NSString *publicDir = [[NSBundle bundleForClass:self] pathForResource:@"public" ofType:nil]; 
+    WADirectoryHandler *publicHandler = [[WADirectoryHandler alloc] initWithDirectory:publicDir requestPath:@"/"];
+    [app addRequestHandler:publicHandler];
+    
+    NSError *error;
+    if(![app start:&error]) {
+        NSLog(@"*** Exiting. [%@ start:] failed: %@", NSStringFromClass(self), error);
+        return EXIT_FAILURE;
+    }
+    
+    NSLog(@"WebAppKit started on port %hu", port);
+    NSLog(@"http://localhost:%hu/", port);
+    
+    for(;;) @autoreleasepool {
+        [[NSRunLoop currentRunLoop] run];
+    }
 }
 
 + (WAApplication *)applicationOnPort:(NSUInteger)port
 {
     WAApplication *app = [[self alloc] init];
-	NSString *interface = [self enableExternalAccess] ? nil : @"localhost";
+    NSString *interface = [self enableExternalAccess] ? nil : @"localhost";
     app.server = [[WAServer alloc] initWithPort:port interface:interface];
     return app;
 }
 
 
 - (id)init {
-	if(!(self = [super init])) return nil;
+    if(!(self = [super init])) return nil;
 
-	self.requestHandlers = [NSMutableArray array];	
-	self.currentHandlers = [NSMutableSet set];
-	
-	[self setup];
-	return self;
+    self.requestHandlers = [NSMutableArray array];    
+    self.currentHandlers = [NSMutableSet set];
+    
+    [self setup];
+    return self;
 }
 
 
 - (void)setServer:(WAServer *)server {
-	_server = server;
-	
-	__weak WAApplication *weakSelf = self;
-	self.server.requestHandlerFactory = ^(WARequest *request){
-		return [weakSelf handlerForRequest:request];
-	};
+    _server = server;
+    
+    __weak WAApplication *weakSelf = self;
+    self.server.requestHandlerFactory = ^(WARequest *request){
+        return [weakSelf handlerForRequest:request];
+    };
 }
 
 
 - (BOOL)start:(NSError**)error {
-	return [self.server start:error];
+    return [self.server start:error];
 }
 
 
 - (void)invalidate {
-	[self.server invalidate];
-	self.server = nil;
-	[self.sessionGenerator invalidate];
-	self.sessionGenerator = nil;
+    [self.server invalidate];
+    self.server = nil;
+    [self.sessionGenerator invalidate];
+    self.sessionGenerator = nil;
 }
 
 
@@ -143,32 +143,32 @@ int WAApplicationMain() {
 
 
 - (WARequestHandler*)handlerForRequest:(WARequest*)req {
-	for(WARequestHandler *handler in self.requestHandlers)
-		if([handler canHandleRequest:req])
-			return [handler handlerForRequest:req];
-	return [self fallbackHandler];
+    for(WARequestHandler *handler in self.requestHandlers)
+        if([handler canHandleRequest:req])
+            return [handler handlerForRequest:req];
+    return [self fallbackHandler];
 }
 
 
 - (void)addRequestHandler:(WARequestHandler*)handler {
-	[self.requestHandlers addObject:handler];
+    [self.requestHandlers addObject:handler];
 }
 
 
 - (void)removeRequestHandler:(WARequestHandler*)handler {
-	[self.requestHandlers removeObject:handler];
+    [self.requestHandlers removeObject:handler];
 }
 
 
 - (NSString*)fileNotFoundFile {
-	return [[NSBundle bundleForClass:[WAApplication class]] pathForResource:@"404" ofType:@"html"];
+    return [[NSBundle bundleForClass:[WAApplication class]] pathForResource:@"404" ofType:@"html"];
 }
 
 
 - (WARequestHandler*)fallbackHandler {
-	WAStaticFileHandler *handler = [[WAStaticFileHandler alloc] initWithFile:[self fileNotFoundFile] enableCaching:NO];
-	handler.statusCode = 404;
-	return handler;
+    WAStaticFileHandler *handler = [[WAStaticFileHandler alloc] initWithFile:[self fileNotFoundFile] enableCaching:NO];
+    handler.statusCode = 404;
+    return handler;
 }
 
 
@@ -177,19 +177,19 @@ int WAApplicationMain() {
 
 
 - (WARoute*)addRouteSelector:(SEL)sel HTTPMethod:(NSString*)method path:(NSString*)path {
-	if(![self respondsToSelector:sel])
-		NSLog(@"Warning: %@ doesn't respond to route handler message '%@'.", self, NSStringFromSelector(sel));
+    if(![self respondsToSelector:sel])
+        NSLog(@"Warning: %@ doesn't respond to route handler message '%@'.", self, NSStringFromSelector(sel));
 
-	WARoute *route = [WARoute routeWithPathExpression:path method:method target:self action:sel];
-	
-	[self addRequestHandler:route];
-	return route;
+    WARoute *route = [WARoute routeWithPathExpression:path method:method target:self action:sel];
+    
+    [self addRequestHandler:route];
+    return route;
 }
 
 
 - (void)setRequest:(WARequest*)req response:(WAResponse*)resp {
-	self.request = req;
-	self.response = resp;
+    self.request = req;
+    self.response = resp;
 }
 
 - (void)preprocess {}
@@ -197,9 +197,9 @@ int WAApplicationMain() {
 
 
 - (WASession*)session {
-	if(!self.sessionGenerator)
-		[NSException raise:NSGenericException format:@"The session property cannot be used without first setting a sessionGenerator."];
-	return [self.sessionGenerator sessionForRequest:self.request response:self.response];
+    if(!self.sessionGenerator)
+        [NSException raise:NSGenericException format:@"The session property cannot be used without first setting a sessionGenerator."];
+    return [self.sessionGenerator sessionForRequest:self.request response:self.response];
 }
 
 @end

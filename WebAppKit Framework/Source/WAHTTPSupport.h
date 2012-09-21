@@ -7,15 +7,15 @@
 //
 
 typedef enum {
-	WANoneAuthenticationScheme,
-	WABasicAuthenticationScheme,
-	WADigestAuthenticationScheme,
+    WANoneAuthenticationScheme,
+    WABasicAuthenticationScheme,
+    WADigestAuthenticationScheme,
 } WAAuthenticationScheme;
 
 
 typedef struct {
-	uint64_t firstByte;
-	uint64_t lastByte;
+    uint64_t firstByte;
+    uint64_t lastByte;
 } WAByteRange;
 
 

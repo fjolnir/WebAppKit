@@ -11,9 +11,9 @@
 
 
 @interface TLForeachLoop : TLStatement {
-	TLExpression *collection;
-	NSString *variableName;
-	TLStatement *body;
+    TLExpression *collection;
+    NSString *variableName;
+    TLStatement *body;
 }
 
 - (id)initWithCollection:(TLExpression*)object body:(TLStatement*)contents variableName:(NSString*)var;

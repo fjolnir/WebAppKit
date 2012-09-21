@@ -10,7 +10,7 @@
 
 
 @interface TLIdentifier : TLExpression {
-	NSString *name;
+    NSString *name;
 }
 
 - (id)initWithName:(NSString*)symbolName;

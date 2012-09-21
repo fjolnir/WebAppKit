@@ -12,19 +12,19 @@
 @implementation TLCompoundStatement
 
 - (id)initWithStatements:(NSArray*)array {
-	self = [super init];
-	statements = [array copy];
-	return self;
+    self = [super init];
+    statements = [array copy];
+    return self;
 }
 
 - (void)invokeInScope:(TLScope *)scope {
-	TLScope *innerScope = [[TLScope alloc] initWithParentScope:scope];
-	for(TLStatement *statement in statements)
-		[statement invokeInScope:innerScope];
+    TLScope *innerScope = [[TLScope alloc] initWithParentScope:scope];
+    for(TLStatement *statement in statements)
+        [statement invokeInScope:innerScope];
 }
 
 - (NSString*)description {
-	return [NSString stringWithFormat:@"<Compound: %@>", statements];
+    return [NSString stringWithFormat:@"<Compound: %@>", statements];
 }
 
 @end

@@ -17,17 +17,17 @@
 @implementation WARequestHandler
 
 - (BOOL)canHandleRequest:(WARequest*)req {
-	return NO;
+    return NO;
 }
 
 
 - (WARequestHandler*)handlerForRequest:(WARequest*)req {
-	return self;
+    return self;
 }
 
 
 - (void)handleRequest:(WARequest*)req response:(WAResponse*)resp socket:(GCDAsyncSocket*)sock {
-	[self handleRequest:req response:resp];
+    [self handleRequest:req response:resp];
 }
 
 

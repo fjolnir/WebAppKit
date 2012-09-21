@@ -25,15 +25,15 @@ extern NSString *const GCDAsyncSocketSSLDiffieHellmanParameters;
 
 enum GCDAsyncSocketError
 {
-	GCDAsyncSocketNoError = 0,           // Never used
-	GCDAsyncSocketBadConfigError,        // Invalid configuration
-	GCDAsyncSocketBadParamError,         // Invalid parameter was passed
-	GCDAsyncSocketConnectTimeoutError,   // A connect operation timed out
-	GCDAsyncSocketReadTimeoutError,      // A read operation timed out
-	GCDAsyncSocketWriteTimeoutError,     // A write operation timed out
-	GCDAsyncSocketReadMaxedOutError,     // Reached set maxLength without completing
-	GCDAsyncSocketClosedError,           // The remote peer closed the connection
-	GCDAsyncSocketOtherError,            // Description provided in userInfo
+    GCDAsyncSocketNoError = 0,           // Never used
+    GCDAsyncSocketBadConfigError,        // Invalid configuration
+    GCDAsyncSocketBadParamError,         // Invalid parameter was passed
+    GCDAsyncSocketConnectTimeoutError,   // A connect operation timed out
+    GCDAsyncSocketReadTimeoutError,      // A read operation timed out
+    GCDAsyncSocketWriteTimeoutError,     // A write operation timed out
+    GCDAsyncSocketReadMaxedOutError,     // Reached set maxLength without completing
+    GCDAsyncSocketClosedError,           // The remote peer closed the connection
+    GCDAsyncSocketOtherError,            // Description provided in userInfo
 };
 typedef enum GCDAsyncSocketError GCDAsyncSocketError;
 
@@ -43,49 +43,49 @@ typedef enum GCDAsyncSocketError GCDAsyncSocketError;
 
 @interface GCDAsyncSocket : NSObject
 {
-	UInt16 flags;
-	UInt16 config;
-	
-	id delegate;
-	dispatch_queue_t delegateQueue;
-	
-	int socket4FD;
-	int socket6FD;
-	int connectIndex;
-	NSData * connectInterface4;
-	NSData * connectInterface6;
-	
-	dispatch_queue_t socketQueue;
-	
-	dispatch_source_t accept4Source;
-	dispatch_source_t accept6Source;
-	dispatch_source_t connectTimer;
-	dispatch_source_t readSource;
-	dispatch_source_t writeSource;
-	dispatch_source_t readTimer;
-	dispatch_source_t writeTimer;
-	
-	NSMutableArray *readQueue;
-	NSMutableArray *writeQueue;
-	
-	GCDAsyncReadPacket *currentRead;
-	GCDAsyncWritePacket *currentWrite;
-	
-	unsigned long socketFDBytesAvailable;
-	
-	NSMutableData *partialReadBuffer;
-		
+    UInt16 flags;
+    UInt16 config;
+    
+    id delegate;
+    dispatch_queue_t delegateQueue;
+    
+    int socket4FD;
+    int socket6FD;
+    int connectIndex;
+    NSData * connectInterface4;
+    NSData * connectInterface6;
+    
+    dispatch_queue_t socketQueue;
+    
+    dispatch_source_t accept4Source;
+    dispatch_source_t accept6Source;
+    dispatch_source_t connectTimer;
+    dispatch_source_t readSource;
+    dispatch_source_t writeSource;
+    dispatch_source_t readTimer;
+    dispatch_source_t writeTimer;
+    
+    NSMutableArray *readQueue;
+    NSMutableArray *writeQueue;
+    
+    GCDAsyncReadPacket *currentRead;
+    GCDAsyncWritePacket *currentWrite;
+    
+    unsigned long socketFDBytesAvailable;
+    
+    NSMutableData *partialReadBuffer;
+        
 #if TARGET_OS_IPHONE
-	CFStreamClientContext streamContext;
-	CFReadStreamRef readStream;
-	CFWriteStreamRef writeStream;
+    CFStreamClientContext streamContext;
+    CFReadStreamRef readStream;
+    CFWriteStreamRef writeStream;
 #else
-	SSLContextRef sslContext;
-	NSMutableData *sslReadBuffer;
-	size_t sslWriteCachedLength;
+    SSLContextRef sslContext;
+    NSMutableData *sslReadBuffer;
+    size_t sslWriteCachedLength;
 #endif
-	
-	id userData;
+    
+    id userData;
 }
 
 /**
@@ -442,9 +442,9 @@ typedef enum GCDAsyncSocketError GCDAsyncSocketError;
  * That is, it will reference the bytes that were appended to the given buffer.
 **/
 - (void)readDataWithTimeout:(NSTimeInterval)timeout
-					 buffer:(NSMutableData *)buffer
-			   bufferOffset:(NSUInteger)offset
-						tag:(long)tag;
+                     buffer:(NSMutableData *)buffer
+               bufferOffset:(NSUInteger)offset
+                        tag:(long)tag;
 
 /**
  * Reads the first available bytes that become available on the socket.

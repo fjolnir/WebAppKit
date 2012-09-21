@@ -10,7 +10,7 @@
 
 
 @interface WALocalization : NSObject {
-	NSDictionary *mapping;
+    NSDictionary *mapping;
 }
 
 + (id)localizationNamed:(NSString*)name;

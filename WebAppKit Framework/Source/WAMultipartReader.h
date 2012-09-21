@@ -16,13 +16,13 @@
 
 
 @interface WAMultipartReader : NSObject <GCDAsyncSocketDelegate> {
-	id<WAMultipartReaderDelegate> delegate;
-	id oldSocketDelegate;
-	GCDAsyncSocket *socket;
-	NSString *boundary;
-	
-	NSMutableArray *parts;
-	WAMultipartPart *currentPart;
+    id<WAMultipartReaderDelegate> delegate;
+    id oldSocketDelegate;
+    GCDAsyncSocket *socket;
+    NSString *boundary;
+    
+    NSMutableArray *parts;
+    WAMultipartPart *currentPart;
 }
 
 - (id)initWithSocket:(GCDAsyncSocket*)sock

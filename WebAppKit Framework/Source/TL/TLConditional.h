@@ -9,8 +9,8 @@
 #import "TLStatement.h"
 
 @interface TLConditional : TLStatement {
-	NSArray *conditions;
-	NSArray *consequents;
+    NSArray *conditions;
+    NSArray *consequents;
 }
 
 - (id)initWithConditions:(NSArray*)conds consequents:(NSArray*)bodies;
