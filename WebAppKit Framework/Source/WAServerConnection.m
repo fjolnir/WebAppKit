@@ -44,7 +44,9 @@
 
 
 - (void)readNewRequest {
-	NSData *crlfcrlf = [NSData dataWithBytes:"\r\n\r\n" length:4];
+	static NSData *crlfcrlf;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ crlfcrlf = [NSData dataWithBytes:"\r\n\r\n" length:4]; });
 	[self.socket readDataToData:crlfcrlf withTimeout:60 maxLength:100000 tag:0];
 }
 
