@@ -10,10 +10,15 @@
 
 @class WARequest, WAResponse, TFRegex;
 
+typedef id WARouteHandlerBlock;
+
 @interface WARoute : WARequestHandler
 @property(readonly, copy) NSString *method;
 @property(readonly, assign) SEL action;
 @property(readonly, weak) id target;
 
-+ (id)routeWithPathExpression:(NSString*)expr method:(NSString*)m target:(id)object action:(SEL)selector;
+@property(readonly, copy) WARouteHandlerBlock handlerBlock;
+
++ (WARoute *)routeWithPathExpression:(NSString*)expr method:(NSString*)m target:(id)object action:(SEL)selector;
++ (WARoute *)routeWithPathExpression:(NSString*)expr method:(NSString*)m handler:(WARouteHandlerBlock)handler;
 @end

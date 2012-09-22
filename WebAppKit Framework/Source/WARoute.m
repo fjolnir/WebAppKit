@@ -17,6 +17,20 @@
 
 static NSCharacterSet *wildcardComponentCharacters;
 
+struct Block {
+    void *isa;
+    int flags;
+    int reserved;
+    void *invoke;
+    struct BlockDescriptor {
+        unsigned long reserved;
+        unsigned long size;
+        void *rest[1];
+    } *descriptor;
+};
+
+static NSString *signatureForBlock(id blockObj);
+
 @interface WARoute ()
 @property(strong) NSArray *components;
 @property(strong) NSArray *argumentWildcardMapping;
@@ -24,6 +38,26 @@ static NSCharacterSet *wildcardComponentCharacters;
 @property(readwrite, copy) NSString *method;
 @property(readwrite, weak) id target;
 @property(readwrite, assign) SEL action;
+
+@property(readwrite, copy) WARouteHandlerBlock handlerBlock;
+@property(readwrite, assign) BOOL handlerBlockReturnsVoid;
+
+- (void)callVoidBlock:(id)block
+            arguments:(__strong id *)args
+                count:(NSUInteger)argc;
+- (id)callIdBlock:(id)block
+        arguments:(__strong id *)args
+            count:(NSUInteger)argc;
+- (void)callVoidFunction:(void(*)(id,SEL,...))function
+                  target:(id)target
+                  action:(SEL)action
+               arguments:(__strong id*)args
+                   count:(NSUInteger)argc;
+- (id)callIdFunction:(IMP)function
+              target:(id)target
+              action:(SEL)action
+           arguments:(__strong id *)args
+               count:(NSUInteger)argc;
 @end
 
 @implementation WARoute
@@ -32,6 +66,7 @@ static NSCharacterSet *wildcardComponentCharacters;
 @synthesize method=_method;
 @synthesize target=_target;
 @synthesize action=_action;
+@synthesize handlerBlock=_handlerBlock;
 
 + (void)initialize
 {
@@ -83,10 +118,11 @@ static NSCharacterSet *wildcardComponentCharacters;
     self.components = componentStrings;
 }
 
-- (id)initWithPathExpression:(NSString*)expression method:(NSString*)HTTPMetod target:(id)object action:(SEL)selector
+- (id)initWithPathExpression:(NSString*)expression method:(NSString*)HTTPMethod target:(id)object action:(SEL)selector
 {
-    if(!(self = [super init])) return nil;
-    NSParameterAssert(expression && HTTPMetod && object && selector);
+    if(!(self = [super init]))
+        return nil;
+    NSParameterAssert(expression && HTTPMethod && object && selector);
 
     [self setWildcardMappingForExpression:expression];    
     NSUInteger numArgs = [[NSStringFromSelector(selector) componentsSeparatedByString:@":"] count]-1;
@@ -94,16 +130,54 @@ static NSCharacterSet *wildcardComponentCharacters;
     if(numArgs != self.argumentWildcardMapping.count + 2)
         [NSException raise:NSInvalidArgumentException format:@"The action (%@) must take a number of arguments equal to the wildcard count + request + response (%d).", NSStringFromSelector(selector), (int)self.argumentWildcardMapping.count+2];
 
-    self.method = HTTPMetod;
+    self.method = HTTPMethod;
     self.action = selector;
     self.target = object;
 
     return self;
 }
 
-+ (id)routeWithPathExpression:(NSString*)expr method:(NSString*)m target:(id)object action:(SEL)selector
+- (id)initWithPathExpression:(NSString*)expression method:(NSString*)HTTPMethod handler:(WARouteHandlerBlock)handler
+{
+    if(!(self = [super init]))
+        return nil;
+    NSParameterAssert(expression && HTTPMethod && handler);
+    NSParameterAssert([handler isKindOfClass:NSClassFromString(@"NSBlock")]);
+
+    // Verify the handler returns an object/boid, and only takes object params
+    NSString *handlerSig = signatureForBlock(handler);
+    if(!handlerSig)
+        [NSException exceptionWithName:NSInvalidArgumentException
+                                reason:@"Unable to get request handler type signature"
+                              userInfo:@{ @"handler": handler }];
+    const char *sigStr = [handlerSig UTF8String];
+    self.handlerBlockReturnsVoid = sigStr[0] == _C_VOID;
+    for(int i = 0; i < [handlerSig length]; ++i) {
+        if(sigStr[i] != _C_ID && sigStr[i] != _C_VOID)
+            [NSException exceptionWithName:NSInvalidArgumentException
+                                    reason:@"Request handlers must take and return only objects"
+                                  userInfo:@{ @"handler": handler }];
+    }
+    
+    [self setWildcardMappingForExpression:expression];
+    NSUInteger numArgs = [handlerSig length] - 1;
+    if(numArgs != self.argumentWildcardMapping.count + 2)
+        [NSException raise:NSInvalidArgumentException format:@"The handler block must take a number of arguments equal to the wildcard count + request + response (%ld).", self.argumentWildcardMapping.count+2];
+    self.method       = HTTPMethod;
+    self.handlerBlock = handler;
+
+    return self;
+}
+
+
++ (WARoute *)routeWithPathExpression:(NSString*)expr method:(NSString*)m target:(id)object action:(SEL)selector
 {
     return [[self alloc] initWithPathExpression:expr method:m target:object action:selector];
+}
+
++ (WARoute *)routeWithPathExpression:(NSString*)expr method:(NSString*)m handler:(WARouteHandlerBlock)handler
+{
+    return [[self alloc] initWithPathExpression:expr method:m handler:handler];
 }
 
 - (BOOL)stringIsValidComponentValue:(NSString*)string
@@ -137,6 +211,62 @@ static NSCharacterSet *wildcardComponentCharacters;
 {
     return [request.method isEqual:self.method] && [self matchesPath:request.path wildcardValues:NULL];
 }
+
+- (void)handleRequest:(WARequest*)request response:(WAResponse*)response
+{
+    NSArray *wildcardValues = nil;
+    [self matchesPath:request.path wildcardValues:&wildcardValues];
+
+    NSUInteger argCount = [wildcardValues count] + 2;
+    id handlerArgs[argCount];
+
+    handlerArgs[0] = request;
+    handlerArgs[1] = response;
+    for(int i = 0; i < [wildcardValues count]; i++) {
+        NSUInteger componentIndex = [(self.argumentWildcardMapping)[i] unsignedIntegerValue];
+        handlerArgs[i+2] = wildcardValues[componentIndex];
+    }
+
+    id value = nil;
+    if(_handlerBlock) {
+        if(_handlerBlockReturnsVoid)
+            [self callVoidBlock:_handlerBlock arguments:handlerArgs count:argCount];
+        else
+            value = [self callIdBlock:_handlerBlock arguments:handlerArgs count:argCount];
+    } else {
+        if([self.target respondsToSelector:@selector(setRequest:response:)])
+            [self.target setRequest:request response:response];
+
+        id target = self.target;
+        SEL action = self.action;
+
+        Method actionMethod = class_getInstanceMethod([target class], action);
+        BOOL hasReturnValue = (method_getTypeEncoding(actionMethod)[0] != 'v');
+
+        if(hasReturnValue) {
+            IMP idFunction = method_getImplementation(actionMethod);
+            value = [self callIdFunction:idFunction target:target action:action arguments:handlerArgs count:argCount];
+        } else {
+            void(*voidFunction)(id, SEL, ...) = (void(*)(id, SEL, ...)) method_getImplementation(actionMethod);
+            [self callVoidFunction:voidFunction target:target action:action arguments:handlerArgs count:argCount];
+        }
+        if([self.target respondsToSelector:@selector(setRequest:response:)])
+            [target setRequest:nil response:nil];
+    }
+
+    if([value isKindOfClass:[WATemplate class]])
+        [response appendString:[value result]];
+    else if([value isKindOfClass:[NSData class]])
+        [response appendBodyData:value];
+    else if(value)
+        [response appendString:[value description]];
+
+    [response finish];
+}
+
+
+#pragma mark Function dispatchers
+
 
 - (id)callIdFunction:(IMP)function
               target:(id)target
@@ -177,48 +307,63 @@ static NSCharacterSet *wildcardComponentCharacters;
     }
 }
 
-- (void)handleRequest:(WARequest*)request response:(WAResponse*)response
+typedef id (^_idBlockTypeNoArgs)();
+typedef id (^_idBlockType)(id, ...);
+- (id)callIdBlock:(id)block
+        arguments:(__strong id *)args
+            count:(NSUInteger)argc
 {
-    NSArray *wildcardValues = nil;
-    [self matchesPath:request.path wildcardValues:&wildcardValues];
-
-    NSUInteger argCount = [wildcardValues count] + 2;
-    id handlerArgs[argCount];
-
-    handlerArgs[0] = request;
-    handlerArgs[1] = response;
-    for(int i = 0; i < [wildcardValues count]; i++) {
-        NSUInteger componentIndex = [(self.argumentWildcardMapping)[i] unsignedIntegerValue];
-        handlerArgs[i+2] = wildcardValues[componentIndex];
+    switch(argc) {
+        case 0: return ((_idBlockTypeNoArgs)block)();
+        case 1: return ((_idBlockType)block)(args[0]);
+        case 2: return ((_idBlockType)block)(args[0], args[1]);
+        case 3: return ((_idBlockType)block)(args[0], args[1], args[2]);
+        case 4: return ((_idBlockType)block)(args[0], args[1], args[2], args[3]);
+        case 5: return ((_idBlockType)block)(args[0], args[1], args[2], args[3], args[4]);
+        case 6: return ((_idBlockType)block)(args[0], args[1], args[2], args[3], args[4], args[5]);
+        case 7: return ((_idBlockType)block)(args[0], args[1], args[2], args[3], args[4], args[5], args[7]);
+        case 8: return ((_idBlockType)block)(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
     }
+    return nil;
+}
 
-    if([self.target respondsToSelector:@selector(setRequest:response:)])
-        [self.target setRequest:request response:response];
-
-    id target = self.target;
-    SEL action = self.action;
-
-    Method actionMethod = class_getInstanceMethod([target class], action);
-    BOOL hasReturnValue = (method_getTypeEncoding(actionMethod)[0] != 'v');
-
-    if(hasReturnValue) {
-        IMP idFunction = method_getImplementation(actionMethod);
-        id value = [self callIdFunction:idFunction target:target action:action arguments:handlerArgs count:argCount];
-
-        if([value isKindOfClass:[WATemplate class]])
-            [response appendString:[value result]];
-        else if([value isKindOfClass:[NSData class]])
-            [response appendBodyData:value];
-        else
-            [response appendString:[value description]];
-    } else {
-        void(*voidFunction)(id, SEL, ...) = (void(*)(id, SEL, ...)) method_getImplementation(actionMethod);
-        [self callVoidFunction:voidFunction target:target action:action arguments:handlerArgs count:argCount];
+typedef void (^_voidBlockTypeNoArgs)();
+typedef void (^_voidBlockType)(id, ...);
+- (void)callVoidBlock:(id)block
+          arguments:(__strong id *)args
+              count:(NSUInteger)argc
+{
+    switch(argc) {
+        case 0: ((_voidBlockTypeNoArgs)block)();
+        case 1: ((_voidBlockType)block)(args[0]);
+        case 2: ((_voidBlockType)block)(args[0], args[1]);
+        case 3: ((_voidBlockType)block)(args[0], args[1], args[2]);
+        case 4: ((_voidBlockType)block)(args[0], args[1], args[2], args[3]);
+        case 5: ((_voidBlockType)block)(args[0], args[1], args[2], args[3], args[4]);
+        case 6: ((_voidBlockType)block)(args[0], args[1], args[2], args[3], args[4], args[5]);
+        case 7: ((_voidBlockType)block)(args[0], args[1], args[2], args[3], args[4], args[5], args[7]);
+        case 8: ((_voidBlockType)block)(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
     }
-
-    if([self.target respondsToSelector:@selector(setRequest:response:)])
-        [target setRequest:nil response:nil];
-    [response finish];
 }
 
 @end
+
+static NSString *signatureForBlock(id blockObj) {
+    struct Block *block = (__bridge void *)blockObj;
+
+    const int copyDisposeFlag = 1 << 25;
+    const int signatureFlag   = 1 << 30;
+
+    if(!(block->flags & signatureFlag))
+        return nil;
+
+    int index = 0;
+    if(block->flags & copyDisposeFlag)
+        index += 2;
+
+    NSString *sig = [NSString stringWithUTF8String:block->descriptor->rest[index]];
+
+    sig = [[sig componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"0123456789?"]] componentsJoinedByString:@""];
+
+    return sig;
+}

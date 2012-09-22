@@ -109,7 +109,6 @@ int WAApplicationMain()
     self.requestHandlers = [NSMutableArray array];    
     self.currentHandlers = [NSMutableSet set];
 
-    [self setup];
     return self;
 }
 
@@ -200,12 +199,4 @@ int WAApplicationMain()
     return [self.sessionGenerator sessionForRequest:self.request response:self.response];
 }
 
-
-#pragma mark Subclass customization points
-
-
-- (void)setup
-{
-    // Implemented by subclasses
-}
 @end
