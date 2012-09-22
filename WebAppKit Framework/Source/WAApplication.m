@@ -199,4 +199,15 @@ int WAApplicationMain()
     return [self.sessionGenerator sessionForRequest:self.request response:self.response];
 }
 
+- (WARoute *)handlePath:(NSString *)path forMethod:(NSString *)method with:(WARouteHandlerBlock)block {
+    WARoute *route = [WARoute routeWithPathExpression:path method:method handler:block];
+    [self addRequestHandler: route];
+    return route;
+}
+
+- (WARoute *)handleGET:    path with: block { return [self handlePath:path forMethod:@"GET"    with: block]; }
+- (WARoute *)handlePOST:   path with: block { return [self handlePath:path forMethod:@"POST"   with: block]; }
+- (WARoute *)handlePUT:    path with: block { return [self handlePath:path forMethod:@"PUT"    with: block]; }
+- (WARoute *)handleDELETE: path with: block { return [self handlePath:path forMethod:@"DELETE" with: block]; }
+
 @end

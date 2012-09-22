@@ -6,7 +6,9 @@
 //  Copyright 2010 Lighthead Software. All rights reserved.
 //
 
-@class WARoute, WASessionGenerator, WASession, WARequest, WAResponse, WARequestHandler;
+#import <WebAppKit/WARoute.h>
+
+@class WASessionGenerator, WASession, WARequest, WAResponse, WARequestHandler;
 
 extern int WAApplicationMain();
 
@@ -24,6 +26,12 @@ extern int WAApplicationMain();
 - (void)invalidate;
 
 - (WARoute*)addRouteSelector:(SEL)sel HTTPMethod:(NSString*)method path:(NSString*)path;
+
+- (WARoute *)handlePath:(NSString *)path forMethod:(NSString *)method with:(WARouteHandlerBlock)block;
+- (WARoute *)handleGET:    path with: block;
+- (WARoute *)handlePOST:   path with: block;
+- (WARoute *)handlePUT:    path with: block;
+- (WARoute *)handleDELETE: path with: block;
 
 - (void)addRequestHandler:(WARequestHandler*)handler;
 - (void)removeRequestHandler:(WARequestHandler*)handler;
