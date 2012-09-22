@@ -23,9 +23,6 @@ extern int WAApplicationMain();
 - (BOOL)start:(NSError**)error;
 - (void)invalidate;
 
-- (void)preprocess;
-- (void)postprocess;
-
 - (WARoute*)addRouteSelector:(SEL)sel HTTPMethod:(NSString*)method path:(NSString*)path;
 
 - (void)addRequestHandler:(WARequestHandler*)handler;

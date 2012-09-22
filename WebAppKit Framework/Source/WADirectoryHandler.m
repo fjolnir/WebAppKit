@@ -25,19 +25,19 @@
 - (id)initWithDirectory:(NSString*)root requestPath:(NSString*)path
 {
     if(!(self = [super init])) return nil;
-    
+
     BOOL isDir;    
     if(![[NSFileManager defaultManager] fileExistsAtPath:root isDirectory:&isDir] || !isDir)
         NSLog(@"Warning: Directory %@ does not exist.", root);
-    
+
     if(![path hasPrefix:@"/"])
         [NSException raise:NSInvalidArgumentException format:@"Request path must begin with '/'."];
-    
+
     self.directoryRoot = root;
     self.requestPathRoot = path;
     if(![self.requestPathRoot hasSuffix:@"/"])
         self.requestPathRoot = [self.requestPathRoot stringByAppendingString:@"/"];
-    
+
     return self;
 }
 
@@ -51,7 +51,7 @@
 {
     NSString *path = req.path;
     if(![path hasPrefix:self.requestPathRoot]) return NO;
-    
+
     NSString *filePath = [self filePathForRequestPath:path];
     BOOL isDir;
     if(![[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDir] || isDir) return false;
@@ -63,7 +63,7 @@
 - (void)handleRequest:(WARequest *)req response:(WAResponse *)resp
 {
     NSString *filePath = [self filePathForRequestPath:req.path];
-    
+
     WAStaticFileHandler *fileHandler = [[WAStaticFileHandler alloc] initWithFile:filePath enableCaching:YES];
     [fileHandler handleRequest:req response:resp];
 }

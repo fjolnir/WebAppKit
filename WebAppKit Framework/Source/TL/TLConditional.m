@@ -25,7 +25,7 @@
     for(NSUInteger i=0; i<[conditions count]; i++) {
         TLExpression *condition = conditions[i];
         TLStatement *consequent = consequents[i];
-        
+
         if([[condition evaluateWithScope:scope] boolValue]) {
             [consequent invokeInScope:scope];
             return;
@@ -36,11 +36,11 @@
 - (NSString*)description
 {
     NSMutableString *desc = [NSMutableString stringWithString:@"<"];
-    
+
     for(NSUInteger i=0; i<[conditions count]; i++) {
         TLExpression *condition = conditions[i];
         TLStatement *consequent = consequents[i];
-    
+
         if(i) [desc appendFormat:@", Else if %@ then %@", condition, consequent];
         else [desc appendFormat:@"If %@ then %@", condition, consequent];
     }

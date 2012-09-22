@@ -30,10 +30,10 @@
 - (id)initWithPort:(NSUInteger)port interface:(NSString*)interface
 {
     if(!(self = [super init])) return nil;
-    
+
     self.port = port;
     self.interface = interface;
-    
+
     self.connections = [NSMutableSet set];
     self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     return self;

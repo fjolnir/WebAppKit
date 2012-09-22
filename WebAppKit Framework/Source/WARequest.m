@@ -58,7 +58,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 + (NSDictionary*)dictionaryFromQueryParameters:(NSString*)query encoding:(NSStringEncoding)enc
 {
     if(!query) return @{};
-    
+
     NSScanner *s = [NSScanner scannerWithString:query];
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     while(1) {
@@ -67,17 +67,17 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
         if(![s scanString:@"=" intoString:NULL]) break;
         if(![s scanUpToString:@"&" intoString:&value])
             value = @"";
-        
+
         name = [name stringByReplacingOccurrencesOfString:@"+" withString:@" "];
         name = [name stringByReplacingPercentEscapesUsingEncoding:enc];
         value = [value stringByReplacingOccurrencesOfString:@"+" withString:@" "];
         value = [value stringByReplacingPercentEscapesUsingEncoding:enc];
-        
+
         if(!name || !value) {
             NSLog(@"Warning: WARequest failed to decode query parameter string.");
             continue;
         }
-        
+
         params[name] = value;
         if(![s scanString:@"&" intoString:NULL]) break;
     }
@@ -110,18 +110,18 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 - (id)initWithHTTPMessage:(id /*CFHTTPMessageRef*/)httpMessage
 {
     if(!(self = [super init])) return nil;
-    
+
     CFHTTPMessageRef message = (__bridge CFHTTPMessageRef)httpMessage;
-    
+
     self.method = (__bridge_transfer NSString*)CFHTTPMessageCopyRequestMethod(message);
     self.HTTPVersion = (__bridge_transfer NSString*)CFHTTPMessageCopyVersion(message);
     NSURL *requestURL = (__bridge_transfer NSURL*)CFHTTPMessageCopyRequestURL(message);
     self.path = [requestURL realPath];
     if(!self.path) return nil;
-    
+
     self.queryParameters = [[self class] dictionaryFromQueryParameters:[requestURL query] encoding:NSUTF8StringEncoding];
     self.query = [requestURL query];
-    
+
     [self setHeaderFields:(__bridge_transfer NSDictionary*)CFHTTPMessageCopyAllHeaderFields(message)];
     NSString *cookieString = [self valueForHeaderField:@"Cookie"];
     if(cookieString) {
@@ -131,10 +131,10 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             cookieDict[cookie.name] = cookie;
         self.cookies = [cookieDict copy];
     }
-    
+
     NSString *rangeString = [self valueForHeaderField:@"Range"];
     if(rangeString) self.byteRanges = [[self class] byteRangesFromHeaderFieldValue:rangeString];
-    
+
     return self;
 }
 
@@ -211,15 +211,15 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     self.clientAddress = socket.connectedHost;
     uint64_t contentLength = [[self valueForHeaderField:@"Content-Length"] longLongValue];
     BOOL hasBody = contentLength || [self valueForHeaderField:@"Transfer-Encoding"];
-    
+
     if(!hasBody) {
         handler(YES);
         return;
     }
-    
+
     NSDictionary *params = nil;
     NSString *contentType = [self valueForHeaderField:@"Content-Type" parameters:&params];
-    
+
     if([contentType isEqual:@"multipart/form-data"]) {
         NSString *boundary = params[@"boundary"];
         if(!boundary) {
@@ -227,9 +227,9 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             return;
         }
         self.multipartReader = [[WAMultipartReader alloc] initWithSocket:socket boundary:boundary delegate:self];
-    
+
     } else if([contentType isEqual:@"application/x-www-form-urlencoded"]) {
-    
+
         if(contentLength > WARequestMaxStaticBodyLength) {
             handler(NO);
             return;
@@ -240,7 +240,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             return;
         }
         [socket readDataToLength:contentLength withTimeout:-1 tag:0];
-    
+
     } else {
         if(contentLength > WARequestMaxStaticBodyLength) {
             handler(NO);
@@ -252,9 +252,9 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             handler(YES);
             return;
         }
-        
+
         [socket readDataToLength:contentLength withTimeout:-1 tag:0];
-        
+
     }
     self.completionHandler = [handler copy];
 }
@@ -269,14 +269,14 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 {
     NSMutableDictionary *files = [NSMutableDictionary dictionary];
     NSMutableDictionary *POSTValues = [NSMutableDictionary dictionary];
-    
+
     for(WAMultipartPart *part in parts) {
         NSDictionary *params = nil;
         WAExtractHeaderValueParameters((part.headerFields)[@"Content-Disposition"]?:@"", &params);
         BOOL isFile = (params[@"filename"] != nil);
         NSString *paramName = params[@"name"];
         if(!paramName) continue;
-        
+
         if(isFile) {
             WAUploadedFile *file = [[WAUploadedFile alloc] initWithPart:part];
             if(!file.parameterName) continue;
@@ -287,7 +287,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             POSTValues[paramName] = string;
         }
     }
-    
+
     self.uploadedFilesMapping = files;
     self.bodyParameters = POSTValues;
     self.completionHandler(YES);
@@ -343,14 +343,14 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 {
     NSString *string = [self valueForHeaderField:@"Accept"];
     if(!string) return $array(@"*/*");
-    
+
     NSMutableArray *types = [NSMutableArray array];
     NSScanner *scanner = [NSScanner scannerWithString:string];
-    
+
     NSCharacterSet *separatorSet = [NSCharacterSet characterSetWithCharactersInString:@";,"];
     NSMutableCharacterSet *nameSet = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
     [nameSet addCharactersInString:@"/*-+"];
-    
+
     while(![scanner isAtEnd]) {
         NSString *value = nil;
         if(![scanner scanCharactersFromSet:nameSet intoString:&value]) break;
@@ -362,14 +362,14 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             [scanner scanString:@"," intoString:NULL];
         }        
     }
-    
+
     return types;    
 }
 
 + (BOOL)mediaType:(NSString*)type matchesType:(NSString*)pattern
 {
     if([pattern isEqual:@"*/*"] || [type isCaseInsensitiveLike:pattern]) return YES;
-    
+
     NSArray *typeComponents = [type componentsSeparatedByString:@"/"];
     NSArray *patternComponents = [pattern componentsSeparatedByString:@"/"];
     if([typeComponents count] != 2 || [patternComponents count] != 2) return NO;
@@ -403,10 +403,10 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     NSString *nonceCount = data[@"nc"];
     NSString *clientNonce = data[@"cnonce"];
     NSString *qop = data[@"qop"];
-    
+
     NSString *clearHA2 = [NSString stringWithFormat:@"%@:%@", method, uri];
     NSString *HA2 = [clearHA2 hexMD5DigestUsingEncoding:NSUTF8StringEncoding];
-    
+
     NSString *clearResponse = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@", HA1, nonce, nonceCount, clientNonce, qop, HA2];
     NSString *response = [clearResponse hexMD5DigestUsingEncoding:NSUTF8StringEncoding];
     return response;
@@ -420,26 +420,26 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 - (NSDictionary *)authorizationValues
 {
     NSString *auth = [self valueForHeaderField:@"Authorization"];
-    
+
     NSMutableDictionary *values = [NSMutableDictionary dictionary];
     NSString *key = nil;
     NSString *value = nil;
     NSScanner *scanner = [NSScanner scannerWithString:auth];
-    
+
     [scanner setCharactersToBeSkipped:[NSCharacterSet characterSetWithCharactersInString:@"\""]];
-    
+
     while(![scanner isAtEnd]) {
         [scanner scanUpToString:@" " intoString:nil];
         [scanner scanString:@" " intoString:NULL];
         [scanner scanUpToString:@"=" intoString:&key];
-        
+
         [scanner scanString:@"=" intoString:nil];
         [scanner scanUpToString:@"," intoString:&value];
-        
+
         value = [value stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\""]];
         values[key] = value;
     }
-    
+
     return values;
 }
 
@@ -449,7 +449,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     NSArray *words = [[self valueForHeaderField:@"Authorization"] componentsSeparatedByString:@" "];
     if([words count] < 2) return NO;
     NSString *encodedCredentials = words[1];
-    
+
     NSArray *parts = [[encodedCredentials stringByDecodingBase64UsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@":"];
     if([parts count] != 2) return NO;
     if(outUser) *outUser = parts[0];
@@ -482,7 +482,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
             NSString *hash = [[self class] credentialHashForUsername:name password:password realm:[self digestAuthenticationRealm]];
             return [self hasValidAuthenticationForCredentialHash:hash];
         }
-            
+
         default: return NO;
     }
 }
@@ -491,7 +491,7 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 {
     NSString *auth = [self valueForHeaderField:@"Authorization"];
     if(!auth) return WANoneAuthenticationScheme;
-    
+
     if([auth hasPrefix:@"Basic"]) return WABasicAuthenticationScheme;
     if([auth hasPrefix:@"Digest"]) return WADigestAuthenticationScheme;
     return WANoneAuthenticationScheme;
@@ -567,10 +567,10 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 {
     NSArray *ranges = self.byteRanges;
     if(!ranges) return nil;
-    
+
     ranges = [[self class] absoluteArrayOfRanges:ranges availableLength:length];
     if(![ranges count]) return nil;
-    
+
     ranges = [[self class] canonicalRanges:ranges];
     return ranges;
 }

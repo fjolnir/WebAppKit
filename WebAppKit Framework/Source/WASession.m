@@ -46,7 +46,7 @@ static const NSTimeInterval WASessionDefaultLifespan = 31556926;
     self.database = database;
     self.name = name;
     self.token = token;
-    
+
     if(![self tokenIsValid:self.token]) return nil;    
     return self;
 }
@@ -54,17 +54,17 @@ static const NSTimeInterval WASessionDefaultLifespan = 31556926;
 - (id)initWithDatabase:(FMDatabase*)database name:(NSString*)name request:(WARequest*)request response:(WAResponse*)response
 {
     if(!(self = [super init])) return nil;
-    
+
     self.database = database;
     self.name = name;
     self.request = request;
     self.response = response;
-    
+
     WACookie *cookie = [request cookieForName:name] ?: [response cookies][name];
     self.token = cookie.value;
     if(!cookie || ![self tokenIsValid:self.token])
         [self refreshCookie];
-    
+
     return self;
 }
 

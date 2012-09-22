@@ -20,14 +20,14 @@
 - (id)initWithName:(NSString*)cookieName value:(NSString*)cookieValue expirationDate:(NSDate*)date path:(NSString*)p domain:(NSString*)d
 {
     if(!(self = [super init])) return nil;
-    
+
     NSParameterAssert(cookieName && cookieValue);
     self.name = cookieName;
     self.value = cookieValue;
     self.expirationDate = date;
     self.path = p;
     self.domain = d;
-    
+
     return self;
 }
 
@@ -58,17 +58,17 @@
 {
     NSMutableString *baseValue = [NSMutableString stringWithFormat:@"%@=%@", WAConstructHTTPStringValue(self.name), WAConstructHTTPStringValue(self.value)];
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObject:@"1" forKey:@"Version"];
-    
+
     if(self.expirationDate) {
         params[@"Max-Age"] = [NSString stringWithFormat:@"%qu", (uint64_t)[self.expirationDate timeIntervalSinceNow]];
         // Compatibility with the old Netscape spec
         params[@"Expires"] = [[[self class] expiryDateFormatter] stringFromDate:self.expirationDate];
     }
-    
+
     if(self.path) params[@"Path"] = self.path;    
     if(self.domain) params[@"Domain"] = self.domain;
     if(self.secure) params[@"Secure"] = [NSNull null];
-    
+
     return [baseValue stringByAppendingString:WAConstructHTTPParameterString(params)];
 }
 
@@ -89,14 +89,14 @@
 {
     NSScanner *s = [NSScanner scannerWithString:headerValue];
     NSMutableSet *cookies = [NSMutableSet set];
-    
+
     while(1) {
         NSString *name, *value;
         if(![s scanUpToString:@"=" intoString:&name]) break;
         if(![s scanString:@"=" intoString:NULL]) break;
         if(![s scanUpToString:@";" intoString:&value] && !value) break;
         [s scanString:@";" intoString:NULL];
-        
+
         WACookie *c = [[WACookie alloc] initWithName:name value:value expirationDate:nil path:nil domain:nil];
         [cookies addObject:c];
     }

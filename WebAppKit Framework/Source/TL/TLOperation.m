@@ -19,20 +19,20 @@ typedef struct {
 static TLOperatorInfo operatorInfo[] = {
     {TLOperatorKeyPathSelection, nil, 0},
     {TLOperatorNegation, nil, 0},
-    
+
     {TLOperatorMultiplication, @"*", 1},
     {TLOperatorDivision, @"/", 1},
     {TLOperatorAddition, @"+", 2},
     {TLOperatorSubtraction, @"-", 2},
-    
+
     {TLOperatorLessThan, @"<", 3},
     {TLOperatorLessThanOrEqual, @"<=", 3},
     {TLOperatorGreaterThan, @">", 4},
     {TLOperatorGreaterThanOrEqual, @">=", 4},
-    
+
     {TLOperatorIdentityEquality, @"===", 5},
     {TLOperatorIdentityInequality, @"!==", 5},
-    
+
     {TLOperatorEquality, @"==", 6},
     {TLOperatorInequality, @"!=", 6},
 
@@ -125,10 +125,10 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     operator = op;
     leftOperand = left;
     rightOperand = right;
-    
+
     if(leftOperand.constant && rightOperand.constant)
         return (id)[[TLObject alloc] initWithObject:[self evaluateWithScope:nil]];
-    
+
     return self;
 }
 
@@ -147,25 +147,25 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
 - (id)objectByApplyingOperator:(TLOperator)op object:(id)lhs object2:(id)rhs
 {
     BOOL boolValue = NO;
-    
+
     switch(op) {
         case TLOperatorInvalid: [NSException raise:TLRuntimeException format:@"Invalid operator"];
         case TLOperatorKeyPathSelection: return [lhs valueForKeyPath:rhs];
-        
+
         case TLOperatorAddition: return [lhs TL_add:rhs];
         case TLOperatorSubtraction: return [lhs TL_subtract:rhs];
         case TLOperatorMultiplication: return [lhs TL_multiply:rhs];
         case TLOperatorDivision: return [lhs TL_divide:rhs];
-        
+
         case TLOperatorEquality: boolValue = [lhs isEqual:rhs]; break;
         case TLOperatorInequality: boolValue = ![lhs isEqual:rhs]; break;
         case TLOperatorIdentityEquality: boolValue = lhs == rhs; break;
         case TLOperatorIdentityInequality: boolValue = lhs != rhs; break;
-            
+
         case TLOperatorNegation: boolValue = ![lhs boolValue]; break;
         case TLOperatorAND: boolValue = [lhs boolValue] && [rhs boolValue]; break;
         case TLOperatorOR: boolValue = [lhs boolValue] || [rhs boolValue]; break;
-            
+
         case TLOperatorLessThan:
         case TLOperatorGreaterThan:
         case TLOperatorLessThanOrEqual:
@@ -173,7 +173,7 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
             boolValue = [self boolValueForComparison:op object:lhs object2:rhs];
             break;
     }
-    
+
     return @(boolValue);    
 }
 
@@ -181,7 +181,7 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
 {
     id leftValue = [leftOperand evaluateWithScope:scope];
     id rightValue = [rightOperand evaluateWithScope:scope];
-    
+
     return [self objectByApplyingOperator:operator object:leftValue object2:rightValue];
 }
 

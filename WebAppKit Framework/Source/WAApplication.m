@@ -71,24 +71,24 @@ int WAApplicationMain()
     uint16_t port = [self port];
     if(!port) return EXIT_FAILURE;
     NSString *interface = [self enableExternalAccess] ? nil : @"localhost";
-    
+
     WAApplication *app = [[self alloc] init];
     app.server = [[WAServer alloc] initWithPort:port interface:interface];
-    
+
     NSString *publicDir = [[NSBundle bundleForClass:self] pathForResource:@"public" ofType:nil]; 
     WADirectoryHandler *publicHandler = [[WADirectoryHandler alloc] initWithDirectory:publicDir
                                                                           requestPath:@"/"];
     [app addRequestHandler:publicHandler];
-    
+
     NSError *error;
     if(![app start:&error]) {
         NSLog(@"*** Exiting. [%@ start:] failed: %@", NSStringFromClass(self), error);
         return EXIT_FAILURE;
     }
-    
+
     NSLog(@"WebAppKit started on port %hu", port);
     NSLog(@"http://localhost:%hu/", port);
-    
+
     for(;;) @autoreleasepool {
         [[NSRunLoop currentRunLoop] run];
     }
@@ -108,7 +108,7 @@ int WAApplicationMain()
 
     self.requestHandlers = [NSMutableArray array];    
     self.currentHandlers = [NSMutableSet set];
-    
+
     [self setup];
     return self;
 }
@@ -116,7 +116,7 @@ int WAApplicationMain()
 - (void)setServer:(WAServer *)server
 {
     _server = server;
-    
+
     __weak WAApplication *weakSelf = self;
     self.server.requestHandlerFactory = ^(WARequest *request) {
         return [weakSelf handlerForRequest:request];
@@ -181,7 +181,7 @@ int WAApplicationMain()
         NSLog(@"Warning: %@ doesn't respond to route handler message '%@'.", self, NSStringFromSelector(sel));
 
     WARoute *route = [WARoute routeWithPathExpression:path method:method target:self action:sel];
-    
+
     [self addRequestHandler:route];
     return route;
 }
@@ -205,14 +205,6 @@ int WAApplicationMain()
 
 
 - (void)setup
-{
-    // Implemented by subclasses
-}
-- (void)preprocess
-{
-    // Implemented by subclasses
-}
-- (void)postprocess
 {
     // Implemented by subclasses
 }

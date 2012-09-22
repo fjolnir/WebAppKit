@@ -152,24 +152,24 @@
     NSData *output = (__bridge_transfer NSData*)SecTransformExecute(transform, NULL);
     CFRelease(transform);
     return output;
-    
+
 #else
     NSData *encodedData = [[string stringByAppendingString:@"\n"] dataUsingEncoding:NSASCIIStringEncoding];
-    
+
     BIO *command = BIO_new(BIO_f_base64());
     BIO_set_flags(command, BIO_FLAGS_BASE64_NO_NL);
     BIO *context = BIO_new_mem_buf((void *)[encodedData bytes], [encodedData length]);
     context = BIO_push(command, context);
-    
+
     // Encode all the data
     NSMutableData *outputData = [NSMutableData data];
-    
+
     int bufferSize = 256;
     int len;
     char inbuf[bufferSize];
     while(len = BIO_read(context, inbuf, bufferSize))
         [outputData appendBytes:inbuf length:len];
-    
+
     BIO_free_all(context);
     return outputData;
 #endif
@@ -190,11 +190,11 @@
     BIO *command = BIO_new(BIO_f_base64());
     BIO_set_flags(command, BIO_FLAGS_BASE64_NO_NL);
     context = BIO_push(command, context);
-    
+
     // Encode data
     BIO_write(context, [self bytes], [self length]);
     BIO_flush(context);
-    
+
     // Get the resulting data
     char *outputBuffer;
     long outputLength = BIO_get_mem_data(context, &outputBuffer);    
@@ -208,7 +208,7 @@
 {
     size_t outSize = 0;
     CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding, [key bytes], [key length], NULL, [self bytes], [self length], NULL, 0, &outSize);
-    
+
     NSMutableData *ciphertext = [NSMutableData dataWithLength:outSize];
     if(CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding, [key bytes], [key length], NULL, [self bytes], [self length], [ciphertext mutableBytes], outSize, &outSize) != kCCSuccess)
         return nil;
@@ -219,7 +219,7 @@
 {
     size_t outSize = 0;
     CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding, [key bytes], [key length], NULL, [self bytes], [self length], NULL, 0, &outSize);
-    
+
     NSMutableData *cleartext = [NSMutableData dataWithLength:outSize];
     if(CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding, [key bytes], [key length], NULL, [self bytes], [self length], [cleartext mutableBytes], outSize, &outSize) != kCCSuccess)
         return nil;

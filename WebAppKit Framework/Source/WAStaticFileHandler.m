@@ -31,7 +31,7 @@ static NSMutableDictionary *extensionMediaTypeMapping;
         NSURL *mappingFileURL = [[NSBundle bundleForClass:[WAStaticFileHandler class]] URLForResource:@"MediaTypes" withExtension:@"plist"];
         extensionMediaTypeMapping = [NSMutableDictionary dictionaryWithContentsOfURL:mappingFileURL];
     }
-    
+
     return extensionMediaTypeMapping[extension];
 }
 
@@ -43,11 +43,11 @@ static NSMutableDictionary *extensionMediaTypeMapping;
 - (id)initWithFile:(NSString*)path enableCaching:(BOOL)useHTTPCache
 {
     if(!(self = [super init])) return nil;
-    
+
     self.file = path;
     self.enableCaching = useHTTPCache;
     self.statusCode = 200;
-    
+
     return self;
 }
 
@@ -58,7 +58,7 @@ static NSMutableDictionary *extensionMediaTypeMapping;
     if(FSPathMakeRef((const uint8_t*)[file fileSystemRepresentation], &ref, false) != noErr) return nil;
     CFDictionaryRef values = nil;
     if(LSCopyItemAttributes(&ref, kLSRolesViewer, (__bridge CFArrayRef)@[(__bridge id)kLSItemContentType], &values) != noErr) return nil;
-    
+
     NSString *type = (__bridge NSString*)CFDictionaryGetValue(values, kLSItemContentType);
     if(values) CFRelease(values);
     return type;
@@ -71,7 +71,7 @@ static NSMutableDictionary *extensionMediaTypeMapping;
         NSString *mediaType = [[self class] mediaTypeForFileExtension:extension];
         if(mediaType) return mediaType;
     }
-    
+
     NSString *defaultType = @"application/octet-stream";
     NSString *UTI = [self UTIForFile:file];
     if(!UTI) return defaultType;
@@ -85,19 +85,19 @@ static NSMutableDictionary *extensionMediaTypeMapping;
     resp.statusCode = self.statusCode;
     NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:self.file error:NULL];
     NSDate *modificationDate = [attributes fileModificationDate];
-        
+
     BOOL notModified = req.conditionalModificationDate && [req.conditionalModificationDate timeIntervalSinceDate:modificationDate] >= 0;
-    
+
     if(notModified && self.enableCaching) {
         resp.statusCode = 304;
         resp.hasBody = NO;
         [resp finish];
         return;
     }
-    
+
     resp.mediaType = [[self class] mediaTypeForFile:self.file];
     if(self.enableCaching) resp.modificationDate = modificationDate;
-    
+
     [resp appendBodyData:[NSData dataWithContentsOfFile:self.file]];
     [resp finish];
 }

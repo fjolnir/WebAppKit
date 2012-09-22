@@ -26,7 +26,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
     JSValueRef value = [self JavaScriptRepresentationWithContext:ctx];
     JSStringRef JSON = JSValueCreateJSONString(ctx, value, indentation, NULL);
     JSGlobalContextRelease(ctx);
-    
+
     if(!JSON) return nil;
     return (__bridge_transfer NSString*)JSStringCopyCFString(NULL, JSON);
 }
@@ -68,7 +68,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
     JSObjectRef object = JSObjectMake(ctx, NULL, NULL);
     for(NSString *key in self) {
         if(![key isKindOfClass:[NSString class]]) return NULL;
-        
+
         JSStringRef keyString = JSStringCreateWithCFString((__bridge CFStringRef)key);
         JSValueRef value = [self[key] JavaScriptRepresentationWithContext:ctx];
         JSObjectSetProperty(ctx, object, keyString, value, kJSPropertyAttributeNone, NULL);
@@ -84,11 +84,11 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 - (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx
 {
     JSValueRef values[[self count]];
-    
+
     NSUInteger index = 0;
     for(id object in self)
         values[index++] = [object JavaScriptRepresentationWithContext:ctx];
-    
+
     return JSObjectMakeArray(ctx, [self count], values, NULL);
 }
 @end
@@ -127,14 +127,14 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
             JSStringRef script = JSSTR("Array");
             JSValueRef constructor = JSEvaluateScript(ctx, script, NULL, NULL, 0, NULL);
             JSStringRelease(script);
-            
+
             if(JSValueIsInstanceOfConstructor(ctx, value, (JSObjectRef)constructor, NULL)) {
                 NSMutableArray *array = [NSMutableArray array];
                 JSStringRef script = JSSTR("length");
                 JSValueRef lengthValue = JSObjectGetProperty(ctx, object, script, NULL);
                 JSStringRelease(script);
                 unsigned length = JSValueToNumber(ctx, lengthValue, NULL);
-                
+
                 for(unsigned i=0; i<length; i++) {                    
                     JSValueRef indexValue = JSObjectGetPropertyAtIndex(ctx, object, i, NULL);
                     [array addObject:[self objectFromJSValue:indexValue context:ctx]];
@@ -153,7 +153,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
                 }
                 return dict;
             }
-            
+
         }
         default: return NULL;
     }
@@ -164,7 +164,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
     NSParameterAssert(JSON);
     JSGlobalContextRef ctx = JSGlobalContextCreate(NULL);
     JSStringRef source = JSStringCreateWithCFString((__bridge CFStringRef)JSON);
-    
+
     JSValueRef value = JSValueMakeFromJSONString(ctx, source);
     JSStringRelease(source);
     if(!value) {
@@ -172,7 +172,7 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
         return nil;
     }
     id object = [self objectFromJSValue:value context:ctx];
-    
+
     JSGlobalContextRelease(ctx);
     return object;    
 }

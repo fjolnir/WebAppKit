@@ -81,14 +81,14 @@ static const uint64_t WAMPRMaxPartBodyChunkLength = 10000;
         NSString *givenString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         if(![givenString isEqual:correctString])
             return [self fail];
-        
+
         [self readPartHeader];
-    
+
     } else if(tag == WAMPRPartHeader) {
         currentPart = [[WAMultipartPart alloc] initWithHeaderData:data];
         if(!currentPart) return [self fail];
         [self readPartBody];
-        
+
     } else if(tag == WAMPRPartBodyChunk) {
         NSData *boundaryData = [[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 
         NSData *boundaryEndData = [[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]; 

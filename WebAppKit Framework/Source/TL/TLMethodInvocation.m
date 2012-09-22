@@ -23,15 +23,15 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
     target = expr;
     selector = sel;
     arguments = [args copy];
-    
+
     NSUInteger argCount = TLArgumentCountForSelector(selector);
     if(argCount > 6)
         [NSException raise:NSInvalidArgumentException format:@"Too many arguments in %@", NSStringFromSelector(selector)];
     if(argCount != [arguments count])
         [NSException raise:NSInvalidArgumentException format:@"Selector '%@' does not match supplied argument count (%d).", NSStringFromSelector(selector), (int)[args count]];
-    
+
     return self;
-    
+
 }
 
 #define ARGTYPE(_ENCODE_TYPE_) (strcmp(type, @encode(_ENCODE_TYPE_)) == 0)
@@ -43,50 +43,50 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
         return;
     }
 
-    
+
     NSNumber *n = (NSNumber*)object;
-    
+
     if(ARGTYPE(char)) *(char*)buffer = [n charValue];
     else if(ARGTYPE(int)) *(int*)buffer = [n intValue];
     else if(ARGTYPE(short)) *(short*)buffer = [n shortValue];
     else if(ARGTYPE(long)) *(long*)buffer = [n longValue];
     else if(ARGTYPE(long long)) *(long long*)buffer = [n longLongValue];
-    
+
     else if(ARGTYPE(unsigned char)) *(unsigned char*)buffer = [n unsignedCharValue];
     else if(ARGTYPE(unsigned int)) *(unsigned int*)buffer = [n unsignedIntValue];
     else if(ARGTYPE(unsigned short)) *(unsigned short*)buffer = [n unsignedShortValue];
     else if(ARGTYPE(unsigned long)) *(unsigned long*)buffer = [n unsignedLongValue];
     else if(ARGTYPE(unsigned long long)) *(unsigned long long*)buffer = [n unsignedLongLongValue];
-    
+
     else if(ARGTYPE(float)) *(float*)buffer = [n floatValue];
     else if(ARGTYPE(double)) *(double*)buffer = [n doubleValue];
-    
+
     else if([object isKindOfClass:[NSValue class]] && strcmp([object objCType], type) == 0) {
         [object getValue:buffer];
     }
-    
+
     else [NSException raise:TLRuntimeException format:@"Can't coerce object of class %@ to type encoding %s", [object class], type];
 }
 
 - (id)objectFromReturnValue:(void*)buffer ofType:(const char*)type
 {
     if(ARGTYPE(id)) return (__bridge id)*(void**)buffer;
-    
+
     if(ARGTYPE(char)) return @(*(char*)buffer);
     else if(ARGTYPE(int)) return @(*(int*)buffer);
     else if(ARGTYPE(short)) return @(*(short*)buffer);
     else if(ARGTYPE(long)) return @(*(long*)buffer);
     else if(ARGTYPE(long long)) return @(*(long long*)buffer);
-    
+
     else if(ARGTYPE(unsigned char)) return @(*(unsigned char*)buffer);
     else if(ARGTYPE(unsigned int)) return @(*(unsigned int*)buffer);
     else if(ARGTYPE(unsigned short)) return @(*(unsigned short*)buffer);
     else if(ARGTYPE(unsigned long)) return @(*(unsigned long*)buffer);
     else if(ARGTYPE(unsigned long long)) return @(*(unsigned long long*)buffer);
-    
+
     else if(ARGTYPE(float)) return @(*(float*)buffer);
     else if(ARGTYPE(double)) return @(*(double*)buffer);
-    
+
     else return [NSValue valueWithBytes:buffer objCType:type];
 }
 
@@ -94,30 +94,30 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
 {
     id object = [target evaluateWithScope:scope];
     if(!object) return nil;
-    
+
     NSMethodSignature *signature = [object methodSignatureForSelector:selector];
-    
+
     if([arguments count] == 0 && strcmp([signature methodReturnType], @encode(id)) == 0)
         return objc_msgSend(object, selector); // Fast path
-    
-    
+
+
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-    
+
     uint8_t scratch[[signature frameLength]];
     NSUInteger index = 2; // skip self and _cmd
     for(TLExpression *expr in arguments) {
         id arg = [expr evaluateWithScope:scope];
-        
+
         const char *type = [signature getArgumentTypeAtIndex:index];
         [self copyArgument:arg toType:type buffer:scratch];
         [invocation setArgument:scratch atIndex:index];
-        
+
         index++;
     }
-    
+
     [invocation setSelector:selector];
     [invocation invokeWithTarget:object];
-    
+
     uint8_t value[[signature methodReturnLength]];
     [invocation getReturnValue:&value];
     return [self objectFromReturnValue:value ofType:[signature methodReturnType]];

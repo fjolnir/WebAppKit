@@ -10,29 +10,29 @@
 
 typedef enum {
     TLOperatorInvalid = 0,
-    
+
     // Suffix
     TLOperatorKeyPathSelection,
-    
+
     // Prefix
     TLOperatorNegation,
-    
+
     // Infix
     TLOperatorAddition,
     TLOperatorSubtraction,
     TLOperatorMultiplication,
     TLOperatorDivision,
-    
+
     TLOperatorEquality,
     TLOperatorInequality,
     TLOperatorLessThan,
     TLOperatorGreaterThan,
     TLOperatorLessThanOrEqual,
     TLOperatorGreaterThanOrEqual,
-    
+
     TLOperatorAND,
     TLOperatorOR,    
-    
+
     TLOperatorIdentityEquality,
     TLOperatorIdentityInequality,
 } TLOperator;

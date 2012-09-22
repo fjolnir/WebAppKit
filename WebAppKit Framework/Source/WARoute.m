@@ -54,13 +54,13 @@ static NSCharacterSet *wildcardComponentCharacters;
     NSMutableArray *componentStrings = [[expression componentsSeparatedByString:@"/"] mutableCopy];
 
     NSUInteger wildcardCount = [[self class] wildcardCountInExpressionComponents:componentStrings];
-    
+
     if(wildcardCount > 8)
         [NSException raise:NSGenericException format:@"WARoute supports a maxumum of 6 arguments"];
-    
+
     NSMutableArray *wildcardMapping = [NSMutableArray array];
     for(int i=0; i<wildcardCount; i++) [wildcardMapping addObject:[NSNull null]];
-    
+
     NSUInteger wildcardCounter = 0;
     for(int i=0; i<[componentStrings count]; i++) {
         NSString *component = componentStrings[i];
@@ -78,7 +78,7 @@ static NSCharacterSet *wildcardComponentCharacters;
             wildcardCounter++;
         }
     }
-    
+
     self.argumentWildcardMapping = wildcardMapping;
     self.components = componentStrings;
 }
@@ -90,14 +90,14 @@ static NSCharacterSet *wildcardComponentCharacters;
 
     [self setWildcardMappingForExpression:expression];    
     NSUInteger numArgs = [[NSStringFromSelector(selector) componentsSeparatedByString:@":"] count]-1;
-    
+
     if(numArgs != self.argumentWildcardMapping.count + 2)
         [NSException raise:NSInvalidArgumentException format:@"The action (%@) must take a number of arguments equal to the wildcard count + request + response (%d).", NSStringFromSelector(selector), (int)self.argumentWildcardMapping.count+2];
-    
+
     self.method = HTTPMetod;
     self.action = selector;
     self.target = object;
-    
+
     return self;
 }
 
@@ -116,7 +116,7 @@ static NSCharacterSet *wildcardComponentCharacters;
     NSArray *givenComponents = [path componentsSeparatedByString:@"/"];
     if([givenComponents count] != [self.components count]) return NO;
     NSMutableArray *wildcardValues = [NSMutableArray array];
-    
+
     for(NSUInteger i=0; i<[self.components count]; i++) {
         NSString *givenComponent = givenComponents[i];
         NSString *component = (self.components)[i];
@@ -181,7 +181,7 @@ static NSCharacterSet *wildcardComponentCharacters;
 {
     NSArray *wildcardValues = nil;
     [self matchesPath:request.path wildcardValues:&wildcardValues];
-    
+
     NSUInteger argCount = [wildcardValues count] + 2;
     id handlerArgs[argCount];
 
@@ -194,20 +194,17 @@ static NSCharacterSet *wildcardComponentCharacters;
 
     if([self.target respondsToSelector:@selector(setRequest:response:)])
         [self.target setRequest:request response:response];
-    if([self.target respondsToSelector:@selector(preprocess)])
-        [self.target preprocess];
-    
+
     id target = self.target;
     SEL action = self.action;
-    
+
     Method actionMethod = class_getInstanceMethod([target class], action);
     BOOL hasReturnValue = (method_getTypeEncoding(actionMethod)[0] != 'v');
-    
-    
+
     if(hasReturnValue) {
         IMP idFunction = method_getImplementation(actionMethod);
         id value = [self callIdFunction:idFunction target:target action:action arguments:handlerArgs count:argCount];
-        
+
         if([value isKindOfClass:[WATemplate class]])
             [response appendString:[value result]];
         else if([value isKindOfClass:[NSData class]])
@@ -218,9 +215,7 @@ static NSCharacterSet *wildcardComponentCharacters;
         void(*voidFunction)(id, SEL, ...) = (void(*)(id, SEL, ...)) method_getImplementation(actionMethod);
         [self callVoidFunction:voidFunction target:target action:action arguments:handlerArgs count:argCount];
     }
-    
-    if([self.target respondsToSelector:@selector(postprocess)])
-        [target postprocess];
+
     if([self.target respondsToSelector:@selector(setRequest:response:)])
         [target setRequest:nil response:nil];
     [response finish];

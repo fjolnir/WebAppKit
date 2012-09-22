@@ -54,10 +54,10 @@
 - (id)initWithRequest:(WARequest*)request socket:(GCDAsyncSocket*)socket
 {
     if(!(self = [super init])) return nil;
-    
+
     self.request = request;
     self.socket = socket;
-    
+
     self.hasBody = YES;
     self.body = [NSMutableData data];
     self.bodyEncoding = NSUTF8StringEncoding;
@@ -65,7 +65,7 @@
     self.statusCode = 200;
     self.mediaType = @"text/html";
     self.cookies = [NSMutableDictionary dictionary];
-    
+
     return self;
 }
 
@@ -80,7 +80,7 @@
     NSDictionary *fields = [self preparedHeaderFields];
     for(NSString *key in fields)
         CFHTTPMessageSetHeaderFieldValue(message, (__bridge CFStringRef)key, (__bridge CFStringRef)fields[key]);
-    
+
     return message;
 }
 
@@ -115,12 +115,12 @@
 - (void)finish
 {
     if(!self.completionHandler) return;
-    
+
     if(self.progressive)
         [self sendTerminationChunk];
     else
         [self sendFullResponse];
-    
+
     self.completionHandler(self.request.wantsPersistentConnection);
     self.completionHandler = nil;
 }
@@ -175,14 +175,14 @@
 {
     static NSString *cachedValue;
     if(cachedValue) return cachedValue;
-    
+
     NSDictionary *frameworkInfo = [[NSBundle bundleForClass:[self class]] infoDictionary];
     NSString *versionString = frameworkInfo[@"CFBundleShortVersionString"];
     NSString *frameworkName = frameworkInfo[@"CFBundleName"];
-    
+
     cachedValue = frameworkName;
     if([versionString length]) cachedValue = [cachedValue stringByAppendingFormat:@"/%@", versionString];
-        
+
     return cachedValue;
 }
 
@@ -206,44 +206,44 @@
     NSMutableDictionary *fields = $mdict(@"Server", [self defaultUserAgent],
                                          @"Date", [WAHTTPDateFormatter() stringFromDate:[NSDate date]]
     );
-    
+
     if(self.progressive)
         fields[@"Transfer-Encoding"] = @"chunked";
     else if(self.hasBody)
         fields[@"Content-Length"] = [NSString stringWithFormat:@"%qu", (uint64_t)[self.body length]];
-    
+
     if([self needsKeepAliveHeader])
         fields[@"Connection"] = @"Keep-Alive";
-    
+
     if([self contentType] && self.hasBody)
         fields[@"Content-Type"] = [self contentType];
-    
+
     return fields;
 }
 
 - (NSDictionary*)preparedHeaderFields
 {
     NSMutableDictionary *fields = [NSMutableDictionary dictionary];
-    
+
     NSString *cookieString = [[[self.cookies allValues] valueForKey:@"headerFieldValue"] componentsJoinedByString:@", "];
     if([cookieString length])
         fields[@"Set-Cookie"] = cookieString;
-    
+
     if(self.modificationDate)
         fields[@"Last-Modified"] = [WAHTTPDateFormatter() stringFromDate:self.modificationDate];
-    
+
     NSDictionary *defaults = [self defaultHeaderFields];
     for(NSString *key in defaults)
         if(!fields[key])
             fields[key] = defaults[key];
-    
+
     for(id key in [fields copy])
         if([fields[key] length] == 0)
             [fields removeObjectForKey:key];
-    
+
     if(self.allowedOrigins)
         fields[@"Access-Control-Allow-Origin"] = [[self.allowedOrigins allObjects] componentsJoinedByString:@" "];
-    
+
     [fields addEntriesFromDictionary:self.headerFields];
     return fields;
 }
@@ -331,16 +331,16 @@
 {
     self.statusCode = 401;
     NSString *response = nil;
-    
+
     if(scheme == WABasicAuthenticationScheme) {
         response = [NSString stringWithFormat:@"Basic realm=\"%@\"", realm];        
-        
+
     } else if(scheme == WADigestAuthenticationScheme) {
         NSString *nonce = WAGenerateUUIDString();
         NSString *opaque = [realm hexMD5DigestUsingEncoding:NSUTF8StringEncoding];
         response = [NSString stringWithFormat:@"Digest realm=\"%@\", qop=\"auth\", nonce=\"%@\", opaque=\"%@\"", realm, nonce, opaque];
     }
-    
+
     [self setValue:response forHeaderField:@"WWW-Authenticate"];
 }
 

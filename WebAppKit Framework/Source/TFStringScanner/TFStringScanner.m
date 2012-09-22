@@ -10,16 +10,16 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
 + (void)initialize
 {
     digitCharacters = [[NSCharacterSet characterSetWithRange:NSMakeRange('0', 10)] retain];
-    
+
     NSMutableCharacterSet *alpha = [NSMutableCharacterSet characterSetWithRange:NSMakeRange('a', 26)];
     [alpha addCharactersInRange:NSMakeRange('A', 26)];
     [alpha addCharactersInString:@"_"];
     alphaCharacters = [alpha retain];
-    
+
     NSMutableCharacterSet *alphanum = [digitCharacters mutableCopy];
     [alphanum formUnionWithCharacterSet:alphaCharacters];
     alphanumericCharacters = alphanum;
-    
+
     NSMutableCharacterSet *symbols = [[alphanumericCharacters invertedSet] mutableCopy];
     [symbols removeCharactersInString:@" \t\r\n"];
     symbolCharacters = symbols;
@@ -103,7 +103,7 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
 {
     NSUInteger length = [substring length];
     if(location + length > [content length]) return NO;
-    
+
     NSString *sub = [content substringWithRange:NSMakeRange(location, length)];
     if([sub isEqual:substring]) {
         location += length;
@@ -152,17 +152,17 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
 {
     [self scanWhitespace];
     if(self.atEnd) return nil;
-    
+
     unichar firstChar = [content characterAtIndex:location];
-    
+
     if([alphaCharacters characterIsMember:firstChar]) {
         lastTokenType = TFTokenTypeIdentifier;
         return [self scanStringFromCharacterSet:alphanumericCharacters];
-        
+
     } else if([digitCharacters characterIsMember:firstChar]) {
         lastTokenType = TFTokenTypeNumeric;
         return [self scanStringFromCharacterSet:digitCharacters];
-    
+
     } else {
         lastTokenType = TFTokenTypeSymbol;
         for(NSString *symbol in multicharSymbols)

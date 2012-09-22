@@ -20,7 +20,7 @@
     id oldSocketDelegate;
     GCDAsyncSocket *socket;
     NSString *boundary;
-    
+
     NSMutableArray *parts;
     WAMultipartPart *currentPart;
 }

@@ -19,7 +19,7 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
     self = [super init];
     NSString *string = [[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding];
     if(!string) return nil;
-    
+
     NSArray *fieldStrings = [string componentsSeparatedByString:@"\r\n"];
     NSMutableDictionary *fields = [NSMutableDictionary dictionary];
     for(NSString *fieldString in fieldStrings) {
@@ -29,7 +29,7 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
         NSString *value = [fieldString substringFromIndex:split+2];
         fields[key] = value;
     }
-    
+
     headerFields = fields;
     data = [NSMutableData data];
     return self;

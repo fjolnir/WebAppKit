@@ -33,11 +33,11 @@
 - (id)initWithSocket:(GCDAsyncSocket*)socket server:(WAServer*)server
 {
     if(!(self = [super init])) return nil;
-    
+
     self.server = server;
     self.socket = socket;
     self.socket.delegate = self;
-    
+
     [self readNewRequest];
     return self;
 }
@@ -60,25 +60,25 @@
 - (void)handleRequest:(WARequest*)request
 {
     uint64_t start = WANanosecondTime();
-    
+
     self.currentRequestHandler = self.server.requestHandlerFactory(request);
-    
+
     WAResponse *response = [[WAResponse alloc] initWithRequest:request socket:self.socket];
     __weak WAResponse *weakResponse = response;
-    
+
     response.completionHandler = ^(BOOL keepAlive) {
         uint64_t duration = WANanosecondTime()-start;
         if(WAGetDevelopmentMode())
             NSLog(@"%d %@ - %.02f ms", (int)weakResponse.statusCode, request.path, duration/1000000.0);
         self.currentRequestHandler = nil;
         [request invalidate];
-        
+
         if(keepAlive)
             [self readNewRequest];
         else
             [self.socket disconnectAfterWriting];
     };
-    
+
 
     @try {
         [self.currentRequestHandler handleRequest:request response:response socket:self.socket];
@@ -96,10 +96,10 @@
         [self.socket disconnectAfterWriting];
         return;
     }
-    
+
     [request readBodyFromSocket:self.socket completionHandler:^(BOOL validity) {
         [self.socket setDelegate:self];
-        
+
         if(validity)
             [self handleRequest:request];
         else

@@ -52,12 +52,12 @@ NSDateFormatter *WAHTTPDateFormatter(void) {
 NSString *WAExtractHeaderValueParameters(NSString *fullValue, NSDictionary **outParams) {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     if(outParams) *outParams = params;
-    
+
     NSInteger split = [fullValue rangeOfString:@";"].location;
     if(split == NSNotFound) return fullValue;
     NSString *basePart = [fullValue substringToIndex:split];
     NSString *parameterPart = [fullValue substringFromIndex:split];
-    
+
     NSScanner *scanner = [NSScanner scannerWithString:parameterPart];
     for(;;) {
         if(![scanner scanString:@";" intoString:NULL]) break;        
@@ -75,7 +75,7 @@ NSString *WAExtractHeaderValueParameters(NSString *fullValue, NSDictionary **out
         } else {
             if(![scanner scanUpToString:@";" intoString:&value]) break;
         }
-        
+
         params[attribute] = value;
     }
     return basePart;    
@@ -88,7 +88,7 @@ NSString *WAConstructHTTPStringValue(NSString *string) {
         [invalidTokenSet addCharactersInString:@"-_."];
         [invalidTokenSet invert];
     }
-    
+
     if([string rangeOfCharacterFromSet:invalidTokenSet].length) {
         return [NSString stringWithFormat:@"\"%@\"", [string stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""]];
     } else {

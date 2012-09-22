@@ -58,18 +58,18 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
 {
     id value = mapping[key];
     if(value) return value;    
-    
+
     value = [constants valueForKey:key];
     if(value) return value;
-    
+
     value = [parent rawValueForKey:key];
     if(value) return value;
-    
+
     if([key isEqual:@"nil"] || [key isEqual:@"NULL"]) return nil;
-    
+
     value = NSClassFromString(key);
     if(value) return value;
-    
+
     [NSException raise:TLRuntimeException format:@"'%@' is undefined", key];
     return value;
 }
@@ -92,7 +92,7 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
 - (void)setValue:(id)value forKey:(NSString*)key
 {
     if(!value) value = TLNilPlaceholder;
-    
+
     if(![self setValue:value ifKeyExists:key]) {
         if(!mapping) mapping = [NSMutableDictionary dictionary];
         mapping[key] = value;

@@ -23,18 +23,18 @@ static NSString *TFApplicationSupportDirectory() {
 {
     NSPersistentStoreCoordinator *coordinator = [[[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model] autorelease];
     NSError *error = nil;
-    
+
     NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
                              [NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption,
                              [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption,
                              nil];
-    
+
     if(![coordinator addPersistentStoreWithType:storeType configuration:nil URL:storeURL options:options error:&error]) {
         NSLog(@"Store: %@", [storeURL path]);
         NSLog(@"Model: %@", model);
         [NSException raise:NSInvalidArgumentException format:@"Failed to load persistent store: %@", error];        
     }
-    
+
     NSManagedObjectContext *moc = [[[NSManagedObjectContext alloc] init] autorelease];
     [moc setPersistentStoreCoordinator:coordinator];    
     return moc;
@@ -43,19 +43,19 @@ static NSString *TFApplicationSupportDirectory() {
 + (id)managedObjectContextFromModelNamed:(NSString*)modelName inBundle:(NSBundle*)bundle storeName:(NSString*)storeName type:(NSString*)storeType
 {
     NSURL *modelURL = [bundle URLForResource:modelName withExtension:@"momd"];
-    
+
     if(!modelURL) {
         modelURL = [bundle URLForResource:modelName withExtension:@"mom"];
         if(!modelURL)
             [NSException raise:NSInvalidArgumentException format:@"Model file '%@' (.mom/.momd) not found!", modelName];
     }
-    
+
     NSManagedObjectModel *model = [[[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL] autorelease];
     if(!model) {
         [NSException raise:NSInvalidArgumentException format:@"Failed to create MOM from file: %@", modelURL];
         return nil;
     }
-        
+
     NSString *appSupportDirectory = TFApplicationSupportDirectory();
     NSURL *storeURL = [NSURL fileURLWithPath:[appSupportDirectory stringByAppendingPathComponent:storeName]];
     return [self managedObjectContextWithModel:model store:storeURL type:storeType];
@@ -71,7 +71,7 @@ static NSString *TFApplicationSupportDirectory() {
     NSManagedObjectModel *model = [NSManagedObjectModel mergedModelFromBundles:nil];
     if(!model)
         [NSException raise:NSInvalidArgumentException format:@"mergedModelFromBundles: returned nil"];
-    
+
     NSString *appSupportDirectory = TFApplicationSupportDirectory();
     NSURL *storeURL = [NSURL fileURLWithPath:[appSupportDirectory stringByAppendingPathComponent:storeName]];
     return [self managedObjectContextWithModel:model store:storeURL type:storeType];    
@@ -107,11 +107,11 @@ static NSString *TFApplicationSupportDirectory() {
 {
     NSString *className = NSStringFromClass(self);
     NSManagedObjectModel *model = [[moc persistentStoreCoordinator] managedObjectModel];
-    
+
     for(NSEntityDescription *entity in [model entities])
         if([[entity managedObjectClassName] isEqual:className])
             return entity;
-    
+
     return nil;
 }
 
@@ -120,7 +120,7 @@ static NSString *TFApplicationSupportDirectory() {
     NSEntityDescription *entity = [self entityInManagedObjectContext:moc];
     NSAssert2(entity, @"Failed to find entity for class %@ in MOC %@", self, moc);
     [req setEntity:entity];
-    
+
     NSError *error;
     return [moc executeFetchRequest:req error:&error];
 }
@@ -134,11 +134,11 @@ static NSString *TFApplicationSupportDirectory() {
         predicate = [NSPredicate predicateWithFormat:format arguments:list];
         va_end(list);
     }
-    
+
     NSFetchRequest *req = [[[NSFetchRequest alloc] init] autorelease];
     if(predicate) [req setPredicate:predicate];
     if(sortDescriptors) [req setSortDescriptors:sortDescriptors];
-    
+
     return [self objectsMatchingFetchRequest:req managedObjectContext:moc];        
 }
 
@@ -151,11 +151,11 @@ static NSString *TFApplicationSupportDirectory() {
         predicate = [NSPredicate predicateWithFormat:format arguments:list];
         va_end(list);
     }
-    
+
     NSFetchRequest *req = [[[NSFetchRequest alloc] init] autorelease];
     if(predicate) [req setPredicate:predicate];
     if(keyPath) [req setSortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:keyPath ascending:asc]]];
-    
+
     return [self objectsMatchingFetchRequest:req managedObjectContext:moc];        
 }
 
@@ -165,10 +165,10 @@ static NSString *TFApplicationSupportDirectory() {
     va_start(list, format);
     NSPredicate *predicate = [NSPredicate predicateWithFormat:format arguments:list];
     va_end(list);
-    
+
     NSFetchRequest *req = [[[NSFetchRequest alloc] init] autorelease];
     [req setPredicate:predicate];
-    
+
     return [self objectsMatchingFetchRequest:req managedObjectContext:moc];        
 }
 
