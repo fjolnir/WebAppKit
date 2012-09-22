@@ -1,0 +1,9 @@
+[submodule "WebAppKit Framework/Dependencies/TFStringScanner"]
+	path = WebAppKit Framework/Dependencies/TFStringScanner
+	url = https://github.com/tomasf/TFStringScanner.git
+[submodule "WebAppKit Framework/Dependencies/CocoaAsyncSocket"]
+	path = WebAppKit Framework/Dependencies/CocoaAsyncSocket
+	url = https://github.com/robbiehanson/CocoaAsyncSocket.git
+[submodule "WebAppKit Framework/Dependencies/FMDatabase"]
+	path = WebAppKit Framework/Dependencies/FMDatabase
+	url = https://github.com/ccgus/fmdb.git

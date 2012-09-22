@@ -1,5 +1,4 @@
 #import "WAFoundationExtras.h"
-#import "TFCoreDataExtras.h"
 
 #import "WARequestHandler.h"
 #import "WAApplication.h"
