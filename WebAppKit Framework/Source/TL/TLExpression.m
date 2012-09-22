@@ -20,21 +20,24 @@
 
 @implementation TLExpression
 
-- (id)evaluateWithScope:(TLScope*)scope {
+- (id)evaluateWithScope:(TLScope*)scope
+{
     [NSException raise:NSInternalInconsistencyException format:@"%@ needs to be overridden in %@", NSStringFromSelector(_cmd), [self class]];
     return nil;
 }
 
-- (id)evaluate {
+- (id)evaluate
+{
     return [self evaluateWithScope:[[TLScope alloc] init]];
 }
 
-- (BOOL)constant {
+- (BOOL)constant
+{
     return NO;
 }
 
-
-+ (TLExpression*)parseNumber:(TFStringScanner*)scanner {
++ (TLExpression*)parseNumber:(TFStringScanner*)scanner
+{
     NSMutableString *numberString = [NSMutableString string];
     
     if([scanner scanToken:@"-"]) {
@@ -63,8 +66,8 @@
     return [[TLObject alloc] initWithObject:@(number)];
 }
 
-
-+ (TLExpression*)parseInvocation:(TFStringScanner*)scanner {
++ (TLExpression*)parseInvocation:(TFStringScanner*)scanner
+{
     [scanner scanToken]; // [
     TLExpression *receiver = [self parseExpression:scanner];
     
@@ -93,13 +96,13 @@
     return [[TLMethodInvocation alloc] initWithReceiver:receiver selector:NSSelectorFromString(selector) arguments:arguments];
 }
 
-
-+ (TLExpression*)parseExpression:(TFStringScanner*)scanner {
++ (TLExpression*)parseExpression:(TFStringScanner*)scanner
+{
     return [self parseExpression:scanner endToken:nil];
 }
 
-
-+ (TLExpression*)parseStringLiteral:(TFStringScanner*)scanner {
++ (TLExpression*)parseStringLiteral:(TFStringScanner*)scanner
+{
     [scanner scanToken]; // " or @"
     NSMutableString *string = [NSMutableString string];
     
@@ -141,8 +144,8 @@
     return [[TLObject alloc] initWithObject:string];
 }
 
-
-+ (TLExpression*)parseExpression:(TFStringScanner*)scanner endToken:(NSString*)endToken {
++ (TLExpression*)parseExpression:(TFStringScanner*)scanner endToken:(NSString*)endToken
+{
     NSMutableArray *expressions = [NSMutableArray array];
     NSMutableArray *infixOperators = [NSMutableArray array];
     
@@ -244,18 +247,17 @@
     return expressions[0];
 }
 
-
-+ (TFStringScanner*)newScannerForString:(NSString*)string {
++ (TFStringScanner*)newScannerForString:(NSString*)string
+{
     TFStringScanner *scanner = [[TFStringScanner alloc] initWithString:string];
     [scanner addMulticharacterSymbols:@"==", @"!=", @"===", @"!==", @"<=", @">=", @"&&", @"||", @"@\"", nil];
     return scanner;
 }
 
-
-+ (TLExpression*)expressionByParsingString:(NSString*)string {
++ (TLExpression*)expressionByParsingString:(NSString*)string
+{
     TFStringScanner *scanner = [self newScannerForString:string];
     return [TLExpression parseExpression:scanner];
 }
-
 
 @end

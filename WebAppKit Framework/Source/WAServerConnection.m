@@ -30,7 +30,8 @@
 @synthesize server=_server;
 @synthesize currentRequestHandler=_currentRequestHandler;
 
-- (id)initWithSocket:(GCDAsyncSocket*)socket server:(WAServer*)server {
+- (id)initWithSocket:(GCDAsyncSocket*)socket server:(WAServer*)server
+{
     if(!(self = [super init])) return nil;
     
     self.server = server;
@@ -41,23 +42,23 @@
     return self;
 }
 
-
-- (void)readNewRequest {
+- (void)readNewRequest
+{
     static NSData *crlfcrlf;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ crlfcrlf = [NSData dataWithBytes:"\r\n\r\n" length:4]; });
     [self.socket readDataToData:crlfcrlf withTimeout:60 maxLength:100000 tag:0];
 }
 
-
-- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
+{
     [self.currentRequestHandler connectionDidClose];
     [self.server connectionDidClose:self];
     self.socket = nil;
 }
 
-
-- (void)handleRequest:(WARequest*)request {
+- (void)handleRequest:(WARequest*)request
+{
     uint64_t start = WANanosecondTime();
     
     self.currentRequestHandler = self.server.requestHandlerFactory(request);
@@ -88,8 +89,8 @@
     }
 }
 
-
-- (void)handleRequestData:(NSData*)data {
+- (void)handleRequestData:(NSData*)data
+{
     WARequest *request = [[WARequest alloc] initWithHeaderData:data];
     if(!request) {
         [self.socket disconnectAfterWriting];
@@ -106,8 +107,8 @@
     }];
 }
 
-
-- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData*)data withTag:(long)tag {
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData*)data withTag:(long)tag
+{
     [self handleRequestData:data];
 }
 

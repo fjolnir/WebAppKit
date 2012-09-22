@@ -7,7 +7,8 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
 @synthesize location, lastTokenType, string=content;
 
 
-+ (void)initialize {
++ (void)initialize
+{
     digitCharacters = [[NSCharacterSet characterSetWithRange:NSMakeRange('0', 10)] retain];
     
     NSMutableCharacterSet *alpha = [NSMutableCharacterSet characterSetWithRange:NSMakeRange('a', 26)];
@@ -24,28 +25,28 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     symbolCharacters = symbols;
 }
 
-
-+ (id)scannerWithString:(NSString*)string {
++ (id)scannerWithString:(NSString*)string
+{
     return [[[self alloc] initWithString:string] autorelease];    
 }
 
-
-- (id)initWithString:(NSString*)string {
+- (id)initWithString:(NSString*)string
+{
     self = [super init];
     content = [string copy];
     multicharSymbols = [[NSMutableArray alloc] init];
     return self;
 }
 
-
-- (void)dealloc {
+- (void)dealloc
+{
     [content release];
     [multicharSymbols release];
     [super dealloc];    
 }
 
-
-- (NSString *)description {
+- (NSString *)description
+{
     NSInteger radius = 15;
     NSUInteger start = MAX((NSInteger)self.location-radius, 0);
     NSUInteger end = MIN(self.location+radius, [content length]-1);
@@ -56,19 +57,19 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     return [NSString stringWithFormat:@"<%@ %p at position %lu>\n%@\n%@", [self class], self, (unsigned long)self.location, sample, pointString];
 }
 
-
-- (void)resortSymbols {
+- (void)resortSymbols
+{
     [multicharSymbols sortUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"length" ascending:NO]]];    
 }
 
-
-- (void)addMulticharacterSymbol:(NSString*)symbol {
+- (void)addMulticharacterSymbol:(NSString*)symbol
+{
     [multicharSymbols addObject:symbol];
     [self resortSymbols];
 }
 
-
-- (void)addMulticharacterSymbols:(NSString*)symbol, ... {
+- (void)addMulticharacterSymbols:(NSString*)symbol, ...
+{
     va_list list;
     va_start(list, symbol);
     do {
@@ -78,28 +79,28 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     [self resortSymbols];
 }
 
-
-- (void)removeMulticharacterSymbol:(NSString*)symbol {
+- (void)removeMulticharacterSymbol:(NSString*)symbol
+{
     [multicharSymbols removeObject:symbol];
     [self resortSymbols];
 }
 
-
-- (unichar)scanCharacter {
+- (unichar)scanCharacter
+{
     if(self.atEnd) return 0;
     return [content characterAtIndex:location++];
 }
 
-
-- (NSString*)scanForLength:(NSUInteger)length {
+- (NSString*)scanForLength:(NSUInteger)length
+{
     if(location + length > [content length]) return nil;
     NSString *sub = [content substringWithRange:NSMakeRange(location, length)];
     location += length;
     return sub;
 }
 
-
-- (BOOL)scanString:(NSString*)substring {
+- (BOOL)scanString:(NSString*)substring
+{
     NSUInteger length = [substring length];
     if(location + length > [content length]) return NO;
     
@@ -110,8 +111,8 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     } else return NO;
 }
 
-
-- (NSString*)scanToString:(NSString*)substring {
+- (NSString*)scanToString:(NSString*)substring
+{
     NSRange remainingRange = NSMakeRange(location, [content length]-location);
     NSUInteger newLocation = [content rangeOfString:substring options:0 range:remainingRange].location;
     if(newLocation == NSNotFound) {
@@ -123,8 +124,8 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     return string;
 }
 
-
-- (NSString*)scanStringFromCharacterSet:(NSCharacterSet*)set {
+- (NSString*)scanStringFromCharacterSet:(NSCharacterSet*)set
+{
     BOOL found = NO;
     NSUInteger start = location;
     while(!self.atEnd && [set characterIsMember:[content characterAtIndex:location]]) {
@@ -134,21 +135,21 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     return found ? [content substringWithRange:NSMakeRange(start, location-start)] : nil;
 }
 
-
-- (BOOL)scanWhitespace {
+- (BOOL)scanWhitespace
+{
     return [self scanStringFromCharacterSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] != nil;
 }
 
-
-- (NSString*)peekToken {
+- (NSString*)peekToken
+{
     NSUInteger loc = location;
     NSString *token = [self scanToken];
     location = loc;
     return token;
 }
 
-
-- (NSString*)scanToken {
+- (NSString*)scanToken
+{
     [self scanWhitespace];
     if(self.atEnd) return nil;
     
@@ -171,18 +172,17 @@ static NSCharacterSet *digitCharacters, *alphaCharacters, *alphanumericCharacter
     }
 }
 
-
-- (BOOL)scanToken:(NSString*)matchToken {
+- (BOOL)scanToken:(NSString*)matchToken
+{
     if([[self peekToken] isEqual:matchToken]) {
         [self scanToken];
         return YES;
     } else return NO;
 }
 
-
-- (BOOL)isAtEnd {
+- (BOOL)isAtEnd
+{
     return location >= [content length];
 }
-
 
 @end

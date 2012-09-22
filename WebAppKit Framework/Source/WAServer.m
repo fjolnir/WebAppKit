@@ -27,7 +27,8 @@
 @synthesize interface=_interface;
 @synthesize port=_port;
 
-- (id)initWithPort:(NSUInteger)port interface:(NSString*)interface {
+- (id)initWithPort:(NSUInteger)port interface:(NSString*)interface
+{
     if(!(self = [super init])) return nil;
     
     self.port = port;
@@ -38,26 +39,26 @@
     return self;
 }
 
-
-- (BOOL)start:(NSError**)error {
+- (BOOL)start:(NSError**)error
+{
     return [self.socket acceptOnInterface:self.interface port:self.port error:error];
 }
 
-
-- (void)invalidate {
+- (void)invalidate
+{
     [self.socket disconnect];
     self.socket = nil;
 }
 
-
-- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket {
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
+{
     NSAssert(self.requestHandlerFactory != nil, @"requestHandlerFactory not set!");
     WAServerConnection *connection = [[WAServerConnection alloc] initWithSocket:newSocket server:self];
     [self.connections addObject:connection];
 }
 
-
-- (void)connectionDidClose:(WAServerConnection*)connection {
+- (void)connectionDidClose:(WAServerConnection*)connection
+{
     [self.connections removeObject:connection];
 }
 

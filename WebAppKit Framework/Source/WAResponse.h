@@ -31,6 +31,8 @@
 
 - (NSString*)valueForHeaderField:(NSString*)fieldName;
 - (void)setValue:(NSString*)value forHeaderField:(NSString*)fieldName;
+- (id)objectForKeyedSubscript:(NSString *)key;
+- (void)setObject:(id)value forKeyedSubscript:(NSString *)key;
 
 - (void)redirectToURL:(NSURL*)URL;
 - (void)redirectToURL:(NSURL*)URL withStatusCode:(NSUInteger)code;

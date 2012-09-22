@@ -25,7 +25,6 @@ uint64_t WANanosecondTime() {
     return mach_absolute_time() * timebaseInfo.numer / timebaseInfo.denom;
 }
 
-
 NSString *WAApplicationSupportDirectory(void) {
     NSString *name = [[NSBundle mainBundle] bundleIdentifier];
     NSString *root = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject];
@@ -35,11 +34,9 @@ NSString *WAApplicationSupportDirectory(void) {
     return directory;
 }
 
-
 NSUInteger WAGetParameterCountForSelector(SEL selector) {
     return [[NSStringFromSelector(selector) componentsSeparatedByString:@":"] count]-1;
 }
-
 
 NSDateFormatter *WAHTTPDateFormatter(void) {
     static NSDateFormatter *formatter;
@@ -51,7 +48,6 @@ NSDateFormatter *WAHTTPDateFormatter(void) {
     }
     return formatter;
 }
-
 
 NSString *WAExtractHeaderValueParameters(NSString *fullValue, NSDictionary **outParams) {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -85,7 +81,6 @@ NSString *WAExtractHeaderValueParameters(NSString *fullValue, NSDictionary **out
     return basePart;    
 }
 
-
 NSString *WAConstructHTTPStringValue(NSString *string) {
     static NSMutableCharacterSet *invalidTokenSet;
     if(!invalidTokenSet) {
@@ -101,7 +96,6 @@ NSString *WAConstructHTTPStringValue(NSString *string) {
     }    
 }
 
-
 NSString *WAConstructHTTPParameterString(NSDictionary *params) {
     NSMutableString *string = [NSMutableString string];
     for(NSString *name in params) {
@@ -113,7 +107,6 @@ NSString *WAConstructHTTPParameterString(NSDictionary *params) {
     }
     return string;
 }
-
 
 static BOOL WADevelopmentMode;
 

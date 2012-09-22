@@ -47,19 +47,23 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
 
 @implementation NSNumber (TLOperationExtras)
 
-- (id)TL_add:(id)rhs {
+- (id)TL_add:(id)rhs
+{
     return @([self doubleValue] + [rhs doubleValue]);
 }
 
-- (id)TL_subtract:(id)rhs {
+- (id)TL_subtract:(id)rhs
+{
     return @([self doubleValue] - [rhs doubleValue]);
 }
 
-- (id)TL_multiply:(id)rhs {
+- (id)TL_multiply:(id)rhs
+{
     return @([self doubleValue] * [rhs doubleValue]);
 }
 
-- (id)TL_divide:(id)rhs {
+- (id)TL_divide:(id)rhs
+{
     return @([self doubleValue] / [rhs doubleValue]);
 }
 
@@ -71,7 +75,8 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
 
 @implementation TLOperation
 
-+ (TLOperator)operatorForSymbol:(NSString*)string {
++ (TLOperator)operatorForSymbol:(NSString*)string
+{
     for(int i=0; i<operatorCount; i++) {
         if([operatorInfo[i].symbol isEqual:string])
             return operatorInfo[i].operator;
@@ -79,7 +84,8 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     return TLOperatorInvalid;
 }
 
-+ (NSString*)symbolForOperator:(TLOperator)op {
++ (NSString*)symbolForOperator:(TLOperator)op
+{
     for(int i=0; i<operatorCount; i++) {
         if(operatorInfo[i].operator == op)
             return operatorInfo[i].symbol;
@@ -87,7 +93,8 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     return nil;
 }
 
-+ (NSInteger)precedenceOfOperator:(TLOperator)op {
++ (NSInteger)precedenceOfOperator:(TLOperator)op
+{
     for(int i=0; i<operatorCount; i++) {
         if(operatorInfo[i].operator == op)
             return operatorInfo[i].precedence;
@@ -95,7 +102,8 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     return -1;
 }
 
-+ (NSUInteger)indexOfPrecedingOperatorInArray:(NSArray*)array {
++ (NSUInteger)indexOfPrecedingOperatorInArray:(NSArray*)array
+{
     NSUInteger minPrec = NSUIntegerMax;
     NSUInteger minIndex = 0;
     NSUInteger i = 0;
@@ -111,8 +119,8 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     return minIndex;
 }
 
-
-- (id)initWithOperator:(TLOperator)op leftOperand:(TLExpression*)left rightOperand:(TLExpression*)right {
+- (id)initWithOperator:(TLOperator)op leftOperand:(TLExpression*)left rightOperand:(TLExpression*)right
+{
     self = [super init];
     operator = op;
     leftOperand = left;
@@ -124,9 +132,8 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     return self;
 }
 
-
-
-- (BOOL)boolValueForComparison:(TLOperator)op object:(id)lhs object2:(id)rhs {
+- (BOOL)boolValueForComparison:(TLOperator)op object:(id)lhs object2:(id)rhs
+{
     NSComparisonResult result = [lhs compare:rhs];
     switch(op) {
         case TLOperatorLessThan: return result == NSOrderedAscending;
@@ -137,8 +144,8 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     }
 }
 
-
-- (id)objectByApplyingOperator:(TLOperator)op object:(id)lhs object2:(id)rhs {
+- (id)objectByApplyingOperator:(TLOperator)op object:(id)lhs object2:(id)rhs
+{
     BOOL boolValue = NO;
     
     switch(op) {
@@ -170,16 +177,16 @@ static NSUInteger operatorCount = sizeof(operatorInfo)/sizeof(operatorInfo[0]);
     return @(boolValue);    
 }
 
-
-- (id)evaluateWithScope:(TLScope *)scope {
+- (id)evaluateWithScope:(TLScope *)scope
+{
     id leftValue = [leftOperand evaluateWithScope:scope];
     id rightValue = [rightOperand evaluateWithScope:scope];
     
     return [self objectByApplyingOperator:operator object:leftValue object2:rightValue];
 }
 
-
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Operation %d %@ %@>", operator, leftOperand, rightOperand];
 }
 

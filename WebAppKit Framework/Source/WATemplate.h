@@ -14,7 +14,6 @@
     WATemplate *parent;
     WASession *session;
 }
-
 @property(retain) WATemplate *parent;
 @property(retain) WASession *session;
 

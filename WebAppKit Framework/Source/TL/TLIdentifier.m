@@ -11,17 +11,20 @@
 
 @implementation TLIdentifier
 
-- (id)initWithName:(NSString*)symbolName {
+- (id)initWithName:(NSString*)symbolName
+{
     self = [super init];
     name = [symbolName copy];
     return self;
 }
 
-- (id)evaluateWithScope:(TLScope *)scope {
+- (id)evaluateWithScope:(TLScope *)scope
+{
     return [scope valueForKey:name];
 }
 
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Symbol %@>", name];
 }
 

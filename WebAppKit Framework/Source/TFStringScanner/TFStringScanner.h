@@ -13,7 +13,6 @@ typedef enum {
     NSMutableArray *multicharSymbols;
     TFTokenType lastTokenType;
 }
-
 @property(readonly) NSString *string;
 @property NSUInteger location;
 @property(readonly, getter=isAtEnd) BOOL atEnd;

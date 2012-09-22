@@ -15,10 +15,10 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
     return [[NSStringFromSelector(selector) componentsSeparatedByString:@":"] count]-1;
 }
 
-
 @implementation TLMethodInvocation
 
-- (id)initWithReceiver:(TLExpression*)expr selector:(SEL)sel arguments:(NSArray*)args {
+- (id)initWithReceiver:(TLExpression*)expr selector:(SEL)sel arguments:(NSArray*)args
+{
     self = [super init];
     target = expr;
     selector = sel;
@@ -34,10 +34,10 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
     
 }
 
-
 #define ARGTYPE(_ENCODE_TYPE_) (strcmp(type, @encode(_ENCODE_TYPE_)) == 0)
 
-- (void)copyArgument:(id)object toType:(const char*)type buffer:(void*)buffer {
+- (void)copyArgument:(id)object toType:(const char*)type buffer:(void*)buffer
+{
     if(ARGTYPE(id)) {
         *(void**)buffer = (__bridge void*)object;
         return;
@@ -68,8 +68,8 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
     else [NSException raise:TLRuntimeException format:@"Can't coerce object of class %@ to type encoding %s", [object class], type];
 }
 
-
-- (id)objectFromReturnValue:(void*)buffer ofType:(const char*)type {
+- (id)objectFromReturnValue:(void*)buffer ofType:(const char*)type
+{
     if(ARGTYPE(id)) return (__bridge id)*(void**)buffer;
     
     if(ARGTYPE(char)) return @(*(char*)buffer);
@@ -90,8 +90,8 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
     else return [NSValue valueWithBytes:buffer objCType:type];
 }
 
-
-- (id)evaluateWithScope:(TLScope *)scope {
+- (id)evaluateWithScope:(TLScope *)scope
+{
     id object = [target evaluateWithScope:scope];
     if(!object) return nil;
     
@@ -123,10 +123,9 @@ NSUInteger TLArgumentCountForSelector(SEL selector) {
     return [self objectFromReturnValue:value ofType:[signature methodReturnType]];
 }
 
-
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Method Invocation; target=%@, method=%@, args=%@>", target, NSStringFromSelector(selector), arguments];
 }
-
 
 @end

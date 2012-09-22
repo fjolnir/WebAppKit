@@ -12,7 +12,8 @@
 
 @implementation TLForeachLoop
 
-- (id)initWithCollection:(TLExpression*)object body:(TLStatement*)contents variableName:(NSString*)var {
+- (id)initWithCollection:(TLExpression*)object body:(TLStatement*)contents variableName:(NSString*)var
+{
     self = [super init];
     collection = object;
     variableName = [var copy];
@@ -20,7 +21,8 @@
     return self;
 }
 
-- (void)invokeInScope:(TLScope*)scope {
+- (void)invokeInScope:(TLScope*)scope
+{
     id concreteCollection = [collection evaluateWithScope:scope];
     for(id object in concreteCollection) {
         TLScope *innerScope = [[TLScope alloc] initWithParentScope:scope];
@@ -29,7 +31,8 @@
     }
 }
 
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Foreach %@ in %@: %@>", variableName, collection, body];
 }
 

@@ -15,7 +15,6 @@
 
 #import <objc/runtime.h>
 
-
 static NSCharacterSet *wildcardComponentCharacters;
 
 @interface WARoute ()
@@ -27,7 +26,6 @@ static NSCharacterSet *wildcardComponentCharacters;
 @property(readwrite, assign) SEL action;
 @end
 
-
 @implementation WARoute
 @synthesize components=_components;
 @synthesize argumentWildcardMapping=_argumentWildcardMapping;
@@ -35,14 +33,15 @@ static NSCharacterSet *wildcardComponentCharacters;
 @synthesize target=_target;
 @synthesize action=_action;
 
-+ (void)initialize {
++ (void)initialize
+{
     NSMutableCharacterSet *set = [NSMutableCharacterSet characterSetWithRanges:NSMakeRange('a', 26), NSMakeRange('A', 26), NSMakeRange('0', 10), NSMakeRange(0, 0)];
     [set addCharactersInString:@"-_."];
     wildcardComponentCharacters = set;
 }
 
-
-+ (NSUInteger)wildcardCountInExpressionComponents:(NSArray*)components {
++ (NSUInteger)wildcardCountInExpressionComponents:(NSArray*)components
+{
     NSUInteger count = 0;
     for(NSString *component in components)
         if([component hasPrefix:@"*"])
@@ -50,8 +49,8 @@ static NSCharacterSet *wildcardComponentCharacters;
     return count;
 }
 
-
-- (void)setWildcardMappingForExpression:(NSString*)expression {
+- (void)setWildcardMappingForExpression:(NSString*)expression
+{
     NSMutableArray *componentStrings = [[expression componentsSeparatedByString:@"/"] mutableCopy];
 
     NSUInteger wildcardCount = [[self class] wildcardCountInExpressionComponents:componentStrings];
@@ -84,8 +83,8 @@ static NSCharacterSet *wildcardComponentCharacters;
     self.components = componentStrings;
 }
 
-
-- (id)initWithPathExpression:(NSString*)expression method:(NSString*)HTTPMetod target:(id)object action:(SEL)selector {
+- (id)initWithPathExpression:(NSString*)expression method:(NSString*)HTTPMetod target:(id)object action:(SEL)selector
+{
     if(!(self = [super init])) return nil;
     NSParameterAssert(expression && HTTPMetod && object && selector);
 
@@ -102,18 +101,18 @@ static NSCharacterSet *wildcardComponentCharacters;
     return self;
 }
 
-
-+ (id)routeWithPathExpression:(NSString*)expr method:(NSString*)m target:(id)object action:(SEL)selector {
++ (id)routeWithPathExpression:(NSString*)expr method:(NSString*)m target:(id)object action:(SEL)selector
+{
     return [[self alloc] initWithPathExpression:expr method:m target:object action:selector];
 }
 
-
-- (BOOL)stringIsValidComponentValue:(NSString*)string {
+- (BOOL)stringIsValidComponentValue:(NSString*)string
+{
     return [[string stringByTrimmingCharactersInSet:wildcardComponentCharacters] length] == 0;
 }
 
-
-- (BOOL)matchesPath:(NSString*)path wildcardValues:(NSArray**)outWildcards {
+- (BOOL)matchesPath:(NSString*)path wildcardValues:(NSArray**)outWildcards
+{
     NSArray *givenComponents = [path componentsSeparatedByString:@"/"];
     if([givenComponents count] != [self.components count]) return NO;
     NSMutableArray *wildcardValues = [NSMutableArray array];
@@ -134,14 +133,17 @@ static NSCharacterSet *wildcardComponentCharacters;
     return YES;    
 }
 
-
-- (BOOL)canHandleRequest:(WARequest*)request {
+- (BOOL)canHandleRequest:(WARequest*)request
+{
     return [request.method isEqual:self.method] && [self matchesPath:request.path wildcardValues:NULL];
 }
 
-
-
-- (id)callIdFunction:(IMP)function target:(id)target action:(SEL)action arguments:(__strong id *)args count:(NSUInteger)argc {
+- (id)callIdFunction:(IMP)function
+              target:(id)target
+              action:(SEL)action
+           arguments:(__strong id *)args
+               count:(NSUInteger)argc
+{
     switch(argc) {
         case 0: return function(target, action);
         case 1: return function(target, action, args[0]);
@@ -156,8 +158,12 @@ static NSCharacterSet *wildcardComponentCharacters;
     return nil;
 }
 
-
-- (void)callVoidFunction:(void(*)(id,SEL,...))function target:(id)target action:(SEL)action arguments:(__strong id*)args count:(NSUInteger)argc {
+- (void)callVoidFunction:(void(*)(id,SEL,...))function
+                  target:(id)target
+                  action:(SEL)action
+               arguments:(__strong id*)args
+                   count:(NSUInteger)argc
+{
     switch(argc) {
         case 0: return function(target, action);
         case 1: return function(target, action, args[0]);
@@ -171,8 +177,8 @@ static NSCharacterSet *wildcardComponentCharacters;
     }
 }
 
-
-- (void)handleRequest:(WARequest*)request response:(WAResponse*)response {
+- (void)handleRequest:(WARequest*)request response:(WAResponse*)response
+{
     NSArray *wildcardValues = nil;
     [self matchesPath:request.path wildcardValues:&wildcardValues];
     

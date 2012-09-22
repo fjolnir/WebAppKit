@@ -22,7 +22,8 @@
 @synthesize directoryRoot=_directoryRoot;
 @synthesize requestPathRoot=_requestPathRoot;
 
-- (id)initWithDirectory:(NSString*)root requestPath:(NSString*)path {
+- (id)initWithDirectory:(NSString*)root requestPath:(NSString*)path
+{
     if(!(self = [super init])) return nil;
     
     BOOL isDir;    
@@ -40,14 +41,14 @@
     return self;
 }
 
-
-- (NSString*)filePathForRequestPath:(NSString*)path {
+- (NSString*)filePathForRequestPath:(NSString*)path
+{
     path = [path substringFromIndex:[self.requestPathRoot length]];
     return [self.directoryRoot stringByAppendingPathComponent:path];
 }
 
-
-- (BOOL)canHandleRequest:(WARequest *)req {
+- (BOOL)canHandleRequest:(WARequest *)req
+{
     NSString *path = req.path;
     if(![path hasPrefix:self.requestPathRoot]) return NO;
     
@@ -59,8 +60,8 @@
     return YES;
 }
 
-
-- (void)handleRequest:(WARequest *)req response:(WAResponse *)resp {
+- (void)handleRequest:(WARequest *)req response:(WAResponse *)resp
+{
     NSString *filePath = [self filePathForRequestPath:req.path];
     
     WAStaticFileHandler *fileHandler = [[WAStaticFileHandler alloc] initWithFile:filePath enableCaching:YES];

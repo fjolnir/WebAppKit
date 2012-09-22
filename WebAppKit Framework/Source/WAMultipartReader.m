@@ -40,40 +40,42 @@ static const uint64_t WAMPRMaxPartBodyChunkLength = 10000;
     return self;
 }
 
-
-- (void)fail {
+- (void)fail
+{
     [socket setDelegate:oldSocketDelegate];
     [delegate multipartReaderFailed:self];
 }
 
-
-- (void)readInitialBoundary {
+- (void)readInitialBoundary
+{
     [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:10 maxLength:[boundary length]+4 tag:WAMPRInitialBoundary];
 }
 
-
-- (void)readPartHeader {
+- (void)readPartHeader
+{
     NSData *terminator = [NSData dataWithBytes:"\r\n\r\n" length:4];
     [socket readDataToData:terminator withTimeout:10 maxLength:WAMPRMaxPartHeaderLength tag:WAMPRPartHeader];
 }
 
-
-- (void)readPartBody {
+- (void)readPartBody
+{
     [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:60 maxLength:WAMPRMaxPartBodyChunkLength tag:WAMPRPartBodyChunk];
 }
 
-- (void)finishPart {
+- (void)finishPart
+{
     [currentPart finish];
     [parts addObject:currentPart];
     currentPart = nil;
 }
 
-- (void)finish {
+- (void)finish
+{
     [delegate multipartReader:self finishedWithParts:parts];
 }
 
-
-- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+{
     if(tag == WAMPRInitialBoundary) {
         NSString *correctString = [NSString stringWithFormat:@"--%@\r\n", boundary];
         NSString *givenString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];

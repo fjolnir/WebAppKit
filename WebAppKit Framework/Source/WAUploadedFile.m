@@ -24,8 +24,8 @@
 @synthesize filename=_filename;
 @synthesize mediaType=_mediaType;
 
-
-- (id)initWithPart:(WAMultipartPart*)part {
+- (id)initWithPart:(WAMultipartPart*)part
+{
     if(!(self = [super init])) return nil;
     
     NSString *disposition = (part.headerFields)[@"Content-Disposition"];
@@ -48,25 +48,26 @@
     return self;
 }
 
-
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<%@ %p, parameter: %@, filename: %@, type: %@, file: %@>", [self class], self, self.parameterName, self.filename, self.mediaType, self.temporaryFileURL.path];
 }
 
-
-- (void)finalize {
+- (void)finalize
+{
     [self invalidate];
     [super finalize];
 }
 
-- (void)invalidate {
+- (void)invalidate
+{
     if(self.temporaryFileURL)
         [[NSFileManager defaultManager] removeItemAtURL:self.temporaryFileURL error:NULL];
     self.temporaryFileURL = nil;
 }
 
-
-- (BOOL)moveToURL:(NSURL*)destination error:(NSError**)outError {
+- (BOOL)moveToURL:(NSURL*)destination error:(NSError**)outError
+{
     if(!self.temporaryFileURL) return NO;
     if(![[NSFileManager defaultManager] moveItemAtURL:self.temporaryFileURL toURL:destination error:outError]) return NO;
     self.temporaryFileURL = nil;

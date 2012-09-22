@@ -20,8 +20,8 @@
 static const NSString *WAHTTPServerPortKey = @"WAHTTPServerPort";
 static const NSString *WAHTTPServerExternalAccessKey = @"WAHTTPServerExternalAccess";
 
-
-int WAApplicationMain() {
+int WAApplicationMain()
+{
     @autoreleasepool {
         Class appClass = NSClassFromString([[NSBundle mainBundle] infoDictionary][@"NSPrincipalClass"]);
         if(!appClass) {
@@ -31,7 +31,6 @@ int WAApplicationMain() {
         return [appClass run];
     }
 }
-
 
 @interface WAApplication ()
 @property(strong, nonatomic) WAServer *server;
@@ -54,20 +53,21 @@ int WAApplicationMain() {
 @synthesize response=_response;
 @synthesize sessionGenerator=_sessionGenerator;
 
-+ (uint16_t)port {
++ (uint16_t)port
+{
     NSUInteger port = [[[NSBundle mainBundle] infoDictionary][WAHTTPServerPortKey] unsignedShortValue];
     if(!port) port = [[NSUserDefaults standardUserDefaults] integerForKey:@"port"];    
     if(!port) NSLog(@"No port number specified. Set WAHTTPServerPort in Info.plist or use the -port argument.");
     return port;
 }
 
-
-+ (BOOL)enableExternalAccess {
++ (BOOL)enableExternalAccess
+{
     return [[[NSBundle mainBundle] infoDictionary][WAHTTPServerExternalAccessKey] boolValue];
 }
 
-
-+ (int)run {
++ (int)run
+{
     uint16_t port = [self port];
     if(!port) return EXIT_FAILURE;
     NSString *interface = [self enableExternalAccess] ? nil : @"localhost";
@@ -76,7 +76,8 @@ int WAApplicationMain() {
     app.server = [[WAServer alloc] initWithPort:port interface:interface];
     
     NSString *publicDir = [[NSBundle bundleForClass:self] pathForResource:@"public" ofType:nil]; 
-    WADirectoryHandler *publicHandler = [[WADirectoryHandler alloc] initWithDirectory:publicDir requestPath:@"/"];
+    WADirectoryHandler *publicHandler = [[WADirectoryHandler alloc] initWithDirectory:publicDir
+                                                                          requestPath:@"/"];
     [app addRequestHandler:publicHandler];
     
     NSError *error;
@@ -101,8 +102,8 @@ int WAApplicationMain() {
     return app;
 }
 
-
-- (id)init {
+- (id)init
+{
     if(!(self = [super init])) return nil;
 
     self.requestHandlers = [NSMutableArray array];    
@@ -112,8 +113,8 @@ int WAApplicationMain() {
     return self;
 }
 
-
-- (void)setServer:(WAServer *)server {
+- (void)setServer:(WAServer *)server
+{
     _server = server;
     
     __weak WAApplication *weakSelf = self;
@@ -122,13 +123,13 @@ int WAApplicationMain() {
     };
 }
 
-
-- (BOOL)start:(NSError**)error {
+- (BOOL)start:(NSError**)error
+{
     return [self.server start:error];
 }
 
-
-- (void)invalidate {
+- (void)invalidate
+{
     [self.server invalidate];
     self.server = nil;
     [self.sessionGenerator invalidate];
@@ -136,47 +137,46 @@ int WAApplicationMain() {
 }
 
 
-- (void)setup {}
-
-
 #pragma mark Request Handlers
 
 
-- (WARequestHandler*)handlerForRequest:(WARequest*)req {
+- (WARequestHandler*)handlerForRequest:(WARequest*)req
+{
     for(WARequestHandler *handler in self.requestHandlers)
         if([handler canHandleRequest:req])
             return [handler handlerForRequest:req];
     return [self fallbackHandler];
 }
 
-
-- (void)addRequestHandler:(WARequestHandler*)handler {
+- (void)addRequestHandler:(WARequestHandler*)handler
+{
     [self.requestHandlers addObject:handler];
 }
 
-
-- (void)removeRequestHandler:(WARequestHandler*)handler {
+- (void)removeRequestHandler:(WARequestHandler*)handler
+{
     [self.requestHandlers removeObject:handler];
 }
 
-
-- (NSString*)fileNotFoundFile {
+- (NSString*)fileNotFoundFile
+{
     return [[NSBundle bundleForClass:[WAApplication class]] pathForResource:@"404" ofType:@"html"];
 }
 
-
-- (WARequestHandler*)fallbackHandler {
-    WAStaticFileHandler *handler = [[WAStaticFileHandler alloc] initWithFile:[self fileNotFoundFile] enableCaching:NO];
+- (WARequestHandler*)fallbackHandler
+{
+    WAStaticFileHandler *handler = [[WAStaticFileHandler alloc] initWithFile:[self fileNotFoundFile]
+                                                               enableCaching:NO];
     handler.statusCode = 404;
     return handler;
 }
 
 
-
 #pragma mark Routes
 
 
-- (WARoute*)addRouteSelector:(SEL)sel HTTPMethod:(NSString*)method path:(NSString*)path {
+- (WARoute*)addRouteSelector:(SEL)sel HTTPMethod:(NSString*)method path:(NSString*)path
+{
     if(![self respondsToSelector:sel])
         NSLog(@"Warning: %@ doesn't respond to route handler message '%@'.", self, NSStringFromSelector(sel));
 
@@ -186,20 +186,34 @@ int WAApplicationMain() {
     return route;
 }
 
-
-- (void)setRequest:(WARequest*)req response:(WAResponse*)resp {
+- (void)setRequest:(WARequest*)req response:(WAResponse*)resp
+{
     self.request = req;
     self.response = resp;
 }
 
-- (void)preprocess {}
-- (void)postprocess {}
-
-
-- (WASession*)session {
+- (WASession*)session
+{
     if(!self.sessionGenerator)
-        [NSException raise:NSGenericException format:@"The session property cannot be used without first setting a sessionGenerator."];
+        [NSException raise:NSGenericException
+                    format:@"The session property cannot be used without first setting a sessionGenerator."];
     return [self.sessionGenerator sessionForRequest:self.request response:self.response];
 }
 
+
+#pragma mark Subclass customization points
+
+
+- (void)setup
+{
+    // Implemented by subclasses
+}
+- (void)preprocess
+{
+    // Implemented by subclasses
+}
+- (void)postprocess
+{
+    // Implemented by subclasses
+}
 @end

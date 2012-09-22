@@ -20,7 +20,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 
 @implementation NSObject (WAJSON)
 
-- (NSString*)JSONRepresentationWithIndentation:(NSUInteger)indentation {
+- (NSString*)JSONRepresentationWithIndentation:(NSUInteger)indentation
+{
     JSGlobalContextRef ctx = JSGlobalContextCreate(NULL);
     JSValueRef value = [self JavaScriptRepresentationWithContext:ctx];
     JSStringRef JSON = JSValueCreateJSONString(ctx, value, indentation, NULL);
@@ -30,7 +31,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
     return (__bridge_transfer NSString*)JSStringCopyCFString(NULL, JSON);
 }
 
-- (NSString*)JSONRepresentation {
+- (NSString*)JSONRepresentation
+{
     return [self JSONRepresentationWithIndentation:0];
 }
 
@@ -38,7 +40,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 
 
 @implementation NSString (WAJSON)
-- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx {
+- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx
+{
     JSStringRef string = JSStringCreateWithCFString((__bridge CFStringRef)self);
     JSValueRef value = JSValueMakeString(ctx, string);
     JSStringRelease(string);
@@ -48,7 +51,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 
 
 @implementation NSNumber (WAJSON)
-- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx {
+- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx
+{
     if(strcmp([self objCType], @encode(BOOL)) == 0)
         return JSValueMakeBoolean(ctx, [self boolValue]);
     else
@@ -59,7 +63,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 
 @implementation NSDictionary (WAJSON)
 
-- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx {
+- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx
+{
     JSObjectRef object = JSObjectMake(ctx, NULL, NULL);
     for(NSString *key in self) {
         if(![key isKindOfClass:[NSString class]]) return NULL;
@@ -76,7 +81,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 
 
 @implementation NSArray (WAJSON)
-- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx {
+- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx
+{
     JSValueRef values[[self count]];
     
     NSUInteger index = 0;
@@ -89,7 +95,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 
 
 @implementation NSNull (WAJSON)
-- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx {
+- (JSValueRef)JavaScriptRepresentationWithContext:(JSContextRef)ctx
+{
     return JSValueMakeNull(ctx);
 }
 @end
@@ -100,7 +107,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
 
 @implementation WAJSONParser
 
-+ (id)objectFromJSValue:(JSValueRef)value context:(JSGlobalContextRef)ctx {
++ (id)objectFromJSValue:(JSValueRef)value context:(JSGlobalContextRef)ctx
+{
     switch(JSValueGetType(ctx, value)) {
         case kJSTypeNull:
             return [NSNull null];
@@ -151,7 +159,8 @@ JSON <--[JavaScriptCore]--> Javascript Objects <--[WAJSON]--> Cocoa Objects
     }
 }
 
-+ (id)objectFromJSON:(NSString*)JSON {
++ (id)objectFromJSON:(NSString*)JSON
+{
     NSParameterAssert(JSON);
     JSGlobalContextRef ctx = JSGlobalContextCreate(NULL);
     JSStringRef source = JSStringCreateWithCFString((__bridge CFStringRef)JSON);

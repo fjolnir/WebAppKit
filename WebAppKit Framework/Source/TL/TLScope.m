@@ -16,25 +16,29 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
 
 @implementation TLScope
 
-+ (void)initialize {
++ (void)initialize
+{
     if(!TLConstants) TLConstants = [NSMutableDictionary dictionary];
     [self defineConstant:@"YES" value:@YES];
     [self defineConstant:@"NO" value:@NO];
 }
 
-+ (void)defineConstant:(NSString*)name value:(id)value {
++ (void)defineConstant:(NSString*)name value:(id)value
+{
     @synchronized(TLConstants) {
         TLConstants[name] = value;
     }
 }
 
-+ (void)undefineConstant:(NSString*)name {
++ (void)undefineConstant:(NSString*)name
+{
     @synchronized(TLConstants) {
         [TLConstants removeObjectForKey:name];
     }
 }
 
-- (id)initWithParentScope:(TLScope *)scope {
+- (id)initWithParentScope:(TLScope *)scope
+{
     self = [super init];
     parent = scope;
     if(!scope) {
@@ -45,11 +49,13 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
     return self;
 }
 
-- (id)init {
+- (id)init
+{
     return [self initWithParentScope:nil];
 }
 
-- (id)rawValueForKey:(NSString*)key {
+- (id)rawValueForKey:(NSString*)key
+{
     id value = mapping[key];
     if(value) return value;    
     
@@ -68,21 +74,23 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
     return value;
 }
 
-
-- (id)valueForKey:(NSString*)key {
+- (id)valueForKey:(NSString*)key
+{
     id value = [self rawValueForKey:key];
     if(value == TLNilPlaceholder) return nil;
     return value;
 }
 
-- (BOOL)setValue:(id)value ifKeyExists:(NSString*)key {
+- (BOOL)setValue:(id)value ifKeyExists:(NSString*)key
+{
     if(mapping && mapping[key]) {
         mapping[key] = value;
         return YES;
     } else return [parent setValue:value ifKeyExists:key];
 }
 
-- (void)setValue:(id)value forKey:(NSString*)key {
+- (void)setValue:(id)value forKey:(NSString*)key
+{
     if(!value) value = TLNilPlaceholder;
     
     if(![self setValue:value ifKeyExists:key]) {
@@ -91,13 +99,15 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
     }
 }
 
-- (void)declareValue:(id)value forKey:(NSString*)key {
+- (void)declareValue:(id)value forKey:(NSString*)key
+{
     if(!value) value = TLNilPlaceholder;
     if(!mapping) mapping = [NSMutableDictionary dictionary];
     mapping[key] = value;
 }
 
-- (NSString*)stringByIndentingString:(NSString*)string {
+- (NSString*)stringByIndentingString:(NSString*)string
+{
     NSArray *lines = [string componentsSeparatedByString:@"\n"];
     NSMutableArray *newLines = [NSMutableArray array];
     for(NSString *line in lines) {
@@ -106,7 +116,8 @@ static NSString *const TLNilPlaceholder = @"TLNilPlaceholder";
     return [newLines componentsJoinedByString:@"\n"];
 }
 
-- (NSString*)debugDescription {
+- (NSString*)debugDescription
+{
     NSMutableString *output = [NSMutableString stringWithFormat:@"(\n"];
     for(id key in mapping) {
         if([key hasPrefix:@"_WATemplate"]) continue;

@@ -8,9 +8,7 @@
 
 @class TLScope;
 
-@interface TLExpression : NSObject {
-}
-
+@interface TLExpression : NSObject
 @property(readonly) BOOL constant;
 
 + (TLExpression*)expressionByParsingString:(NSString*)string;

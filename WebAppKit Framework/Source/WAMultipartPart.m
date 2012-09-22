@@ -14,7 +14,8 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
 @implementation WAMultipartPart
 @synthesize headerFields, data, temporaryFile;
 
-- (id)initWithHeaderData:(NSData*)headerData {
+- (id)initWithHeaderData:(NSData*)headerData
+{
     self = [super init];
     NSString *string = [[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding];
     if(!string) return nil;
@@ -34,8 +35,8 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
     return self;
 }
 
-
-- (void)switchToFile {
+- (void)switchToFile
+{
     temporaryFile = [NSTemporaryDirectory() stringByAppendingPathComponent:WAGenerateUUIDString()];
     [[NSFileManager defaultManager] createFileAtPath:temporaryFile contents:data attributes:@{}];
     data = nil;
@@ -43,8 +44,8 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
     [fileHandle seekToEndOfFile];
 }
 
-
-- (void)appendData:(NSData*)bodyData {
+- (void)appendData:(NSData*)bodyData
+{
     if(data) {
         [data appendData:bodyData];
         if([data length] > WAMultipartPartMaxBodyBufferLength) {
@@ -55,7 +56,8 @@ static const uint64_t WAMultipartPartMaxBodyBufferLength = 1000000;
     }
 }
 
-- (void)finish {
+- (void)finish
+{
     if(fileHandle) {
         [fileHandle truncateFileAtOffset:[fileHandle offsetInFile]-2]; // strip CRLF
         [fileHandle closeFile];

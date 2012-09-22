@@ -55,7 +55,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 @synthesize completionHandler=_completionHandler;
 
 
-+ (NSDictionary*)dictionaryFromQueryParameters:(NSString*)query encoding:(NSStringEncoding)enc {
++ (NSDictionary*)dictionaryFromQueryParameters:(NSString*)query encoding:(NSStringEncoding)enc
+{
     if(!query) return @{};
     
     NSScanner *s = [NSScanner scannerWithString:query];
@@ -83,8 +84,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return params;
 }
 
-
-+ (NSArray*)byteRangesFromHeaderFieldValue:(NSString*)value {
++ (NSArray*)byteRangesFromHeaderFieldValue:(NSString*)value
+{
     if(![value hasPrefix:@"bytes="]) return nil;
     NSString *string = [value substringFromIndex:6];
     NSArray *rangeStrings = [string componentsSeparatedByString:@","];
@@ -98,16 +99,16 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return ranges;
 }
 
-
-- (void)setHeaderFields:(NSDictionary*)fields {
+- (void)setHeaderFields:(NSDictionary*)fields
+{
     NSMutableDictionary *newFields = [NSMutableDictionary dictionary];
     for(NSString *name in fields)
         newFields[[name lowercaseString]] = fields[name];
     _headerFields = newFields;
 }
 
-
-- (id)initWithHTTPMessage:(id /*CFHTTPMessageRef*/)httpMessage {
+- (id)initWithHTTPMessage:(id /*CFHTTPMessageRef*/)httpMessage
+{
     if(!(self = [super init])) return nil;
     
     CFHTTPMessageRef message = (__bridge CFHTTPMessageRef)httpMessage;
@@ -137,8 +138,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return self;
 }
 
-
-- (id)initWithHeaderData:(NSData*)data {
+- (id)initWithHeaderData:(NSData*)data
+{
     id message = (__bridge_transfer id)CFHTTPMessageCreateEmpty(NULL, true);
     CFHTTPMessageAppendBytes((__bridge CFHTTPMessageRef)message, [data bytes], [data length]);
     if(!CFHTTPMessageIsHeaderComplete((__bridge CFHTTPMessageRef)message))
@@ -146,67 +147,67 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return [self initWithHTTPMessage:message];
 }
 
-
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<%@ %p: %@ %@>", [self class], self, self.method, self.path];
 }
 
-
-- (NSString*)valueForQueryParameter:(NSString*)name {
+- (NSString*)valueForQueryParameter:(NSString*)name
+{
     return (self.queryParameters)[name];
 }
 
-
-- (NSString*)valueForHeaderField:(NSString*)fieldName {
+- (NSString*)valueForHeaderField:(NSString*)fieldName
+{
     return (self.headerFields)[[fieldName lowercaseString]];
 }
 
-
-- (NSString*)valueForHeaderField:(NSString*)fieldName parameters:(NSDictionary**)outParams {
+- (NSString*)valueForHeaderField:(NSString*)fieldName parameters:(NSDictionary**)outParams
+{
     NSString *value = [self valueForHeaderField:fieldName];
     if(!value) return nil;
     return WAExtractHeaderValueParameters(value, outParams);
 }
 
-
-- (NSString*)valueForBodyParameter:(NSString*)name {
+- (NSString*)valueForBodyParameter:(NSString*)name
+{
     return (self.bodyParameters)[name];
 }
 
-
-- (WACookie*)cookieForName:(NSString*)name {
+- (WACookie*)cookieForName:(NSString*)name
+{
     return (self.cookies)[name];
 }
 
-
-- (NSString*)host {
+- (NSString*)host
+{
     NSString *host = [self valueForHeaderField:@"Host"];
     if(host) return host;
     return @"localhost";
 }
 
-
-- (NSURL*)URL {
+- (NSURL*)URL
+{
     NSString *scheme = NO ? @"https" : @"http";
     return [[NSURL alloc] initWithScheme:scheme host:self.host path:self.path];
 }
 
-
-- (NSURL*)referrer {
+- (NSURL*)referrer
+{
     NSString *URLString = [self valueForHeaderField:@"Referer"];
     if(!URLString) return nil;
     return [NSURL URLWithString:URLString relativeToURL:self.URL];
 }
 
-
-- (NSSet*)origins {
+- (NSSet*)origins
+{
     NSArray *components = [[self valueForHeaderField:@"Origin"] componentsSeparatedByString:@" "];
     if(!components) return nil;
     return [NSSet setWithArray:components];
 }
 
-
-- (void)readBodyFromSocket:(GCDAsyncSocket*)socket completionHandler:(void(^)(BOOL validity))handler {
+- (void)readBodyFromSocket:(GCDAsyncSocket*)socket completionHandler:(void(^)(BOOL validity))handler
+{
     self.clientAddress = socket.connectedHost;
     uint64_t contentLength = [[self valueForHeaderField:@"Content-Length"] longLongValue];
     BOOL hasBody = contentLength || [self valueForHeaderField:@"Transfer-Encoding"];
@@ -258,14 +259,14 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     self.completionHandler = [handler copy];
 }
 
-
-- (void)invalidate {
+- (void)invalidate
+{
     for(WAUploadedFile *file in self.uploadedFiles)
         [file invalidate];
 }
 
-
-- (void)multipartReader:(WAMultipartReader *)reader finishedWithParts:(NSArray *)parts {
+- (void)multipartReader:(WAMultipartReader *)reader finishedWithParts:(NSArray *)parts
+{
     NSMutableDictionary *files = [NSMutableDictionary dictionary];
     NSMutableDictionary *POSTValues = [NSMutableDictionary dictionary];
     
@@ -292,18 +293,18 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     self.completionHandler(YES);
 }
 
-
-- (void)multipartReaderFailed:(WAMultipartReader *)reader {
+- (void)multipartReaderFailed:(WAMultipartReader *)reader
+{
     self.completionHandler(NO);
 }
 
-
-- (NSString*)mediaType {
+- (NSString*)mediaType
+{
     return [self valueForHeaderField:@"Content-Type" parameters:NULL];
 }
 
-
-- (void)handleBodyData:(NSData*)data {
+- (void)handleBodyData:(NSData*)data
+{
     NSString *type = self.mediaType;
     if([type isCaseInsensitiveLike:@"application/x-www-form-urlencoded"]) {
         NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -313,34 +314,33 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     }
 }
 
-
-- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData*)data withTag:(long)tag {
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData*)data withTag:(long)tag
+{
     [self handleBodyData:data];
     self.completionHandler(YES);
     self.completionHandler = nil;
 }
 
-
-- (NSDate*)conditionalModificationDate {
+- (NSDate*)conditionalModificationDate
+{
     NSString *field = [self valueForHeaderField:@"If-Modified-Since"];
     if(!field) return nil;
     return [WAHTTPDateFormatter() dateFromString:field];
 }
 
-
-- (BOOL)wantsPersistentConnection {
+- (BOOL)wantsPersistentConnection
+{
     if([self.HTTPVersion isEqual:(id)kCFHTTPVersion1_0])
         return [[self valueForHeaderField:@"Connection"] isCaseInsensitiveLike:@"Keep-Alive"];
     else
         return ![[self valueForHeaderField:@"Connection"] isCaseInsensitiveLike:@"close"];
 }
 
-
-
 #pragma mark Acceped Media Types
 
 
-- (NSArray*)acceptedMediaTypes {
+- (NSArray*)acceptedMediaTypes
+{
     NSString *string = [self valueForHeaderField:@"Accept"];
     if(!string) return $array(@"*/*");
     
@@ -366,8 +366,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return types;    
 }
 
-
-+ (BOOL)mediaType:(NSString*)type matchesType:(NSString*)pattern {
++ (BOOL)mediaType:(NSString*)type matchesType:(NSString*)pattern
+{
     if([pattern isEqual:@"*/*"] || [type isCaseInsensitiveLike:pattern]) return YES;
     
     NSArray *typeComponents = [type componentsSeparatedByString:@"/"];
@@ -376,27 +376,28 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return [patternComponents[1] isEqual:@"*"] && [typeComponents[0] isCaseInsensitiveLike:patternComponents[0]];
 }
 
-
-- (BOOL)acceptsMediaType:(NSString*)type {
+- (BOOL)acceptsMediaType:(NSString*)type
+{
     for(NSString *acceptedType in self.acceptedMediaTypes)
         if([[self class] mediaType:type matchesType:acceptedType]) return YES;
     return NO;
 }
 
-
-- (NSSet*)uploadedFiles {
+- (NSSet*)uploadedFiles
+{
     return [NSSet setWithArray:[self.uploadedFilesMapping allValues]];
 }
 
-
-- (WAUploadedFile*)uploadedFileForName:(NSString*)name {
+- (WAUploadedFile*)uploadedFileForName:(NSString*)name
+{
     return (self.uploadedFilesMapping)[name];
 }
 
 #pragma mark Authentication
 
 
-+ (NSString*)digestResponseFromCredentialHash:(NSString*)HA1 method:(NSString*)method authorizationData:(NSDictionary*)data {
++ (NSString*)digestResponseFromCredentialHash:(NSString*)HA1 method:(NSString*)method authorizationData:(NSDictionary*)data
+{
     NSString *uri = data[@"uri"];
     NSString *nonce = data[@"nonce"];
     NSString *nonceCount = data[@"nc"];
@@ -411,13 +412,13 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return response;
 }
 
-
-+ (NSString*)credentialHashForUsername:(NSString*)user password:(NSString*)password realm:(NSString*)realm {
++ (NSString*)credentialHashForUsername:(NSString*)user password:(NSString*)password realm:(NSString*)realm
+{
     return [[NSString stringWithFormat:@"%@:%@:%@", user, realm, password] hexMD5DigestUsingEncoding:NSUTF8StringEncoding];
 }
 
-
-- (NSDictionary *)authorizationValues {
+- (NSDictionary *)authorizationValues
+{
     NSString *auth = [self valueForHeaderField:@"Authorization"];
     
     NSMutableDictionary *values = [NSMutableDictionary dictionary];
@@ -442,8 +443,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return values;
 }
 
-
-- (BOOL)getAuthenticationUser:(NSString**)outUser password:(NSString**)outPassword {
+- (BOOL)getAuthenticationUser:(NSString**)outUser password:(NSString**)outPassword
+{
     if(self.authenticationScheme != WABasicAuthenticationScheme) return NO;
     NSArray *words = [[self valueForHeaderField:@"Authorization"] componentsSeparatedByString:@" "];
     if([words count] < 2) return NO;
@@ -456,21 +457,21 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return YES;
 }
 
-
-- (BOOL)hasValidAuthenticationForCredentialHash:(NSString*)hash {
+- (BOOL)hasValidAuthenticationForCredentialHash:(NSString*)hash
+{
     if(self.authenticationScheme != WADigestAuthenticationScheme) return NO;
     NSDictionary *data = [self authorizationValues];
     NSString *correctResponse = [[self class] digestResponseFromCredentialHash:hash method:self.method authorizationData:data];
     return [data[@"response"] isEqual:correctResponse];
 }
 
-
-- (NSString*)digestAuthenticationRealm {
+- (NSString*)digestAuthenticationRealm
+{
     return [self authorizationValues][@"realm"];
 }
 
-
-- (BOOL)hasValidAuthenticationForUsername:(NSString*)name password:(NSString*)password {
+- (BOOL)hasValidAuthenticationForUsername:(NSString*)name password:(NSString*)password
+{
     switch(self.authenticationScheme) {
         case WABasicAuthenticationScheme: {
             NSString *authUser, *authPassword;
@@ -486,8 +487,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     }
 }
 
-
-- (WAAuthenticationScheme)authenticationScheme {
+- (WAAuthenticationScheme)authenticationScheme
+{
     NSString *auth = [self valueForHeaderField:@"Authorization"];
     if(!auth) return WANoneAuthenticationScheme;
     
@@ -497,30 +498,30 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
 }
 
 
-
 #pragma mark Byte Ranges
 
 
-+ (WAByteRange)rangeFromValue:(NSValue*)value {
++ (WAByteRange)rangeFromValue:(NSValue*)value
+{
     WAByteRange range;
     [value getValue:&range];
     return range;
 }
 
-
-+ (NSValue*)valueFromRange:(WAByteRange)range {
++ (NSValue*)valueFromRange:(WAByteRange)range
+{
     return [NSValue valueWithBytes:&range objCType:@encode(WAByteRange)];
 }
 
-
-+ (NSValue*)valueByCombiningRange:(NSValue*)value1 range:(NSValue*)value2 {
++ (NSValue*)valueByCombiningRange:(NSValue*)value1 range:(NSValue*)value2
+{
     WAByteRange combo = WAByteRangeCombine([self rangeFromValue:value1], [self rangeFromValue:value2]);
     if(WAByteRangeIsInvalid(combo)) return nil;
     return [self valueFromRange:combo];
 }
 
-
-+ (NSArray*)sortedRanges:(NSArray*)ranges {
++ (NSArray*)sortedRanges:(NSArray*)ranges
+{
     return [ranges sortedArrayUsingComparator:^NSInteger(id obj1, id obj2) {
         WAByteRange range1 = [self rangeFromValue:obj1];
         WAByteRange range2 = [self rangeFromValue:obj2];
@@ -533,8 +534,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     }];
 }
 
-
-+ (NSArray*)canonicalRanges:(NSArray*)ranges {
++ (NSArray*)canonicalRanges:(NSArray*)ranges
+{
     ranges = [self sortedRanges:ranges];
     NSMutableArray *selection = [NSMutableArray arrayWithObject:ranges[0]];
     for(NSValue *range in ranges) {
@@ -545,8 +546,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return selection;
 }
 
-
-+ (NSArray*)absoluteArrayOfRanges:(NSArray*)array availableLength:(uint64_t)length {
++ (NSArray*)absoluteArrayOfRanges:(NSArray*)array availableLength:(uint64_t)length
+{
     NSMutableArray *ranges = [array mutableCopy];
     for(int i=0; i<[ranges count]; i++) {
         WAByteRange range;
@@ -562,8 +563,8 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     return ranges;
 }
 
-
-- (NSArray*)canonicalByteRangesForDataLength:(uint64_t)length {
+- (NSArray*)canonicalByteRangesForDataLength:(uint64_t)length
+{
     NSArray *ranges = self.byteRanges;
     if(!ranges) return nil;
     
@@ -573,7 +574,6 @@ static const uint64_t WARequestMaxStaticBodyLength = 1000000;
     ranges = [[self class] canonicalRanges:ranges];
     return ranges;
 }
-
 
 - (void)enumerateCanonicalByteRangesForDataLength:(uint64_t)length
                                        usingBlock:(void(^)(WAByteRange range, BOOL *stop))block {

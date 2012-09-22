@@ -11,7 +11,8 @@
 
 @implementation TLConditional
 
-- (id)initWithConditions:(NSArray*)ifExpressions consequents:(NSArray*)thenStatements {
+- (id)initWithConditions:(NSArray*)ifExpressions consequents:(NSArray*)thenStatements
+{
     self = [super init];
     NSAssert([ifExpressions count] == [thenStatements count], @"The number of conditions must match the number of consequents!");
     conditions = [ifExpressions copy];
@@ -19,7 +20,8 @@
     return self;
 }
 
-- (void)invokeInScope:(TLScope *)scope {
+- (void)invokeInScope:(TLScope *)scope
+{
     for(NSUInteger i=0; i<[conditions count]; i++) {
         TLExpression *condition = conditions[i];
         TLStatement *consequent = consequents[i];
@@ -31,8 +33,8 @@
     }
 }
 
-
-- (NSString*)description {
+- (NSString*)description
+{
     NSMutableString *desc = [NSMutableString stringWithString:@"<"];
     
     for(NSUInteger i=0; i<[conditions count]; i++) {

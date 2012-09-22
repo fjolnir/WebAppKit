@@ -11,7 +11,8 @@
 
 @implementation WALocalization
 
-+ (id)localizationNamed:(NSString*)name {
++ (id)localizationNamed:(NSString*)name
+{
     NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"plist"];
     if(!path) {
         NSLog(@"Warning: Localization '%@' not found.", name);
@@ -20,18 +21,20 @@
     return [[self alloc] initWithContentsOfFile:path];
 }
 
-
-- (id)initWithContentsOfFile:(NSString*)file {
+- (id)initWithContentsOfFile:(NSString*)file
+{
     return [self initWithMapping:[NSDictionary dictionaryWithContentsOfFile:file]];
 }
 
-- (id)initWithMapping:(NSDictionary*)dictionary {
+- (id)initWithMapping:(NSDictionary*)dictionary
+{
     self = [super init];
     mapping = [dictionary copy];
     return self;
 }
 
-- (NSString*)stringForKeyPath:(NSString*)key {
+- (NSString*)stringForKeyPath:(NSString*)key
+{
     NSString *value = [mapping valueForKeyPath:key];
     if(!value) {
         NSLog(@"Warning: Missing localization key %@", key);

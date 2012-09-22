@@ -11,19 +11,22 @@
 
 @implementation TLCompoundStatement
 
-- (id)initWithStatements:(NSArray*)array {
+- (id)initWithStatements:(NSArray*)array
+{
     self = [super init];
     statements = [array copy];
     return self;
 }
 
-- (void)invokeInScope:(TLScope *)scope {
+- (void)invokeInScope:(TLScope *)scope
+{
     TLScope *innerScope = [[TLScope alloc] initWithParentScope:scope];
     for(TLStatement *statement in statements)
         [statement invokeInScope:innerScope];
 }
 
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Compound: %@>", statements];
 }
 

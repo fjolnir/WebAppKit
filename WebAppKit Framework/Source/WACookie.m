@@ -17,7 +17,8 @@
 @synthesize expirationDate=_expirationDate;
 @synthesize secure=_secure;
 
-- (id)initWithName:(NSString*)cookieName value:(NSString*)cookieValue expirationDate:(NSDate*)date path:(NSString*)p domain:(NSString*)d {
+- (id)initWithName:(NSString*)cookieName value:(NSString*)cookieValue expirationDate:(NSDate*)date path:(NSString*)p domain:(NSString*)d
+{
     if(!(self = [super init])) return nil;
     
     NSParameterAssert(cookieName && cookieValue);
@@ -30,31 +31,31 @@
     return self;
 }
 
-
-- (id)initWithName:(NSString*)n value:(NSString*)val lifespan:(NSTimeInterval)time path:(NSString*)p domain:(NSString*)d {
+- (id)initWithName:(NSString*)n value:(NSString*)val lifespan:(NSTimeInterval)time path:(NSString*)p domain:(NSString*)d
+{
     NSDate *date = [NSDate dateWithTimeIntervalSinceNow:time];
     return [self initWithName:n value:val expirationDate:date path:p domain:d];
 }
 
-
-- (id)initWithName:(NSString*)n value:(NSString*)val {
+- (id)initWithName:(NSString*)n value:(NSString*)val
+{
     return [self initWithName:n value:val expirationDate:nil path:nil domain:nil];
 }
 
-
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<%@ %p: %@=%@>", [self class], self, self.name, self.value];
 }
 
-
-- (id)copyWithZone:(NSZone *)zone {
+- (id)copyWithZone:(NSZone *)zone
+{
     WACookie *copy = [[WACookie alloc] initWithName:self.name value:self.value expirationDate:self.expirationDate path:self.path domain:self.domain];
     copy.secure = self.secure;
     return copy;
 }
 
-
-- (NSString*)headerFieldValue {
+- (NSString*)headerFieldValue
+{
     NSMutableString *baseValue = [NSMutableString stringWithFormat:@"%@=%@", WAConstructHTTPStringValue(self.name), WAConstructHTTPStringValue(self.value)];
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObject:@"1" forKey:@"Version"];
     
@@ -71,9 +72,9 @@
     return [baseValue stringByAppendingString:WAConstructHTTPParameterString(params)];
 }
 
-
 // Old Netscape date format
-+ (NSDateFormatter*)expiryDateFormatter {
++ (NSDateFormatter*)expiryDateFormatter
+{
     static NSDateFormatter *formatter;
     if(!formatter) {
         formatter = [[NSDateFormatter alloc] init];
@@ -84,8 +85,8 @@
     return formatter;
 }
 
-
-+ (NSSet*)cookiesFromHeaderValue:(NSString*)headerValue {
++ (NSSet*)cookiesFromHeaderValue:(NSString*)headerValue
+{
     NSScanner *s = [NSScanner scannerWithString:headerValue];
     NSMutableSet *cookies = [NSMutableSet set];
     
@@ -102,8 +103,8 @@
     return cookies;
 }
 
-
-+ (id)expiredCookieWithName:(NSString*)name {
++ (id)expiredCookieWithName:(NSString*)name
+{
     return [[self alloc] initWithName:name value:@"" lifespan:-10000 path:nil domain:nil];
 }
 

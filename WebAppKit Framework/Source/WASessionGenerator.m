@@ -27,15 +27,18 @@
 @synthesize name=_name;
 @synthesize database=_database;
 
-+ (id)sessionGenerator {
++ (id)sessionGenerator
+{
     return [[self alloc] init];    
 }
 
-+ (id)sessionGeneratorWithName:(NSString*)name {
++ (id)sessionGeneratorWithName:(NSString*)name
+{
     return [[self alloc] initWithName:name];    
 }
 
-- (id)initWithName:(NSString*)name {
+- (id)initWithName:(NSString*)name
+{
     NSAssert(name != nil, @"name cannot be nil");
     if(!(self = [super init])) return nil;
     self.name = name;
@@ -59,24 +62,27 @@
     return self;
 }
 
-- (id)init {
+- (id)init
+{
     return [self initWithName:@"Session"];
 }
 
-
-- (void)invalidate {
+- (void)invalidate
+{
     [self.database close];
     self.database = nil;
 }
 
-- (WASession*)sessionForRequest:(WARequest*)request response:(WAResponse*)response {
+- (WASession*)sessionForRequest:(WARequest*)request response:(WAResponse*)response
+{
     NSAssert(request != nil && response != nil, @"sessionForRequest:response: needs non-nil request and response.");
     NSAssert(self.database != nil, @"can't create session from invalidated session generator");
     
     return [[WASession alloc] initWithDatabase:self.database name:self.name request:request response:response];
 }
 
-- (WASession*)sessionForToken:(NSString*)token {
+- (WASession*)sessionForToken:(NSString*)token
+{
     NSAssert(self.database != nil, @"can't create session from invalidated session generator");
 
     return [[WASession alloc] initWithDatabase:self.database name:self.name token:token];    

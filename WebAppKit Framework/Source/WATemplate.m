@@ -39,13 +39,15 @@ NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
 
 @implementation WAPrintStatement
 
-- (id)initWithContent:(TLExpression*)expr {
+- (id)initWithContent:(TLExpression*)expr
+{
     self = [super init];
     content = expr;
     return self;
 }
 
-- (void)invokeInScope:(TLScope *)scope {
+- (void)invokeInScope:(TLScope *)scope
+{
     id object = [content evaluateWithScope:scope];
     if(!object) return;
     NSString *chunk = [object isKindOfClass:[NSString class]] ? object : [object description];
@@ -53,13 +55,12 @@ NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
     [output appendString:chunk];
 }
 
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Print %@>", content];
 }
 
 @end
-
-
 
 
 @interface WASubTemplateStatement : TLStatement {
@@ -69,16 +70,17 @@ NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
 @end
 
 
-
 @implementation WASubTemplateStatement
 
-- (id)initWithTemplateName:(NSString*)name {
+- (id)initWithTemplateName:(NSString*)name
+{
     self = [super init];
     templateName = [name copy];
     return self;
 }
 
-- (void)invokeInScope:(TLScope *)scope {
+- (void)invokeInScope:(TLScope *)scope
+{
     WATemplate *template = [WATemplate templateNamed:templateName];
     NSString *result = [template resultWithScope:scope];
     
@@ -86,7 +88,8 @@ NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
     [output appendString:result];
 }
 
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Sub-template %@>", templateName];
 }
 
@@ -99,42 +102,41 @@ NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
 
 @implementation WADebugStatement
 
-- (void)invokeInScope:(TLScope *)scope {
+- (void)invokeInScope:(TLScope *)scope
+{
     NSLog(@"Scope: %@", [scope debugDescription]);
 }
 
-- (NSString*)description {
+- (NSString*)description
+{
     return [NSString stringWithFormat:@"<Debug statement>"];
 }
 
 @end
 
 
-
-
 static NSString *const WATemplateParseException = @"WATemplateParseException";
 static NSMutableDictionary *WANamedTemplates;
-
 
 
 @implementation WATemplate
 @synthesize parent, session;
 
-
-+ (void)initialize {
++ (void)initialize
+{
     if(self != [WATemplate class]) return;
     WANamedTemplates = [NSMutableDictionary dictionary];
 }
 
-
-+ (id)templateNamed:(NSString*)name inBundle:(NSBundle*)bundle {
++ (id)templateNamed:(NSString*)name inBundle:(NSBundle*)bundle
+{
     NSURL *URL = [bundle URLForResource:name withExtension:@"wat"];
     if(!URL) [NSException raise:NSInvalidArgumentException format:@"Template named '%@' wasn't found.", name];
     return [[self alloc] initWithContentsOfURL:URL];
 }
 
-
-+ (id)templateNamed:(NSString*)name {
++ (id)templateNamed:(NSString*)name
+{
     WATemplate *template = WANamedTemplates[name];
     if(!template) {
         NSURL *URL = [[NSBundle mainBundle] URLForResource:name withExtension:@"wat"];
@@ -147,46 +149,45 @@ static NSMutableDictionary *WANamedTemplates;
     return [template copy];
 }
 
-
-+ (id)templateNamed:(NSString*)name parent:(NSString*)parentName {
++ (id)templateNamed:(NSString*)name parent:(NSString*)parentName
+{
     WATemplate *template = [self templateNamed:name];
     template.parent = [self templateNamed:parentName];
     return template;
 }
 
-
-- (id)initWithStatement:(TLStatement*)statement {
+- (id)initWithStatement:(TLStatement*)statement
+{
     self = [super init];
     body = statement;
     mapping = [NSMutableDictionary dictionary];
     return self;
 }
 
-
-- (id)initWithSource:(NSString*)templateString {    
+- (id)initWithSource:(NSString*)templateString
+{    
     TFStringScanner *scanner = [TLExpression newScannerForString:templateString];
     TLStatement *statement = [self scanText:scanner endToken:nil];
     return [self initWithStatement:statement];
 }
 
-
-- (id)initWithContentsOfURL:(NSURL*)URL {
+- (id)initWithContentsOfURL:(NSURL*)URL
+{
     return [self initWithSource:[NSString stringWithContentsOfURL:URL encoding:NSUTF8StringEncoding error:NULL]];
 }
 
-
-- (id)copyWithZone:(NSZone*)zone {
+- (id)copyWithZone:(NSZone*)zone
+{
     return [[WATemplate alloc] initWithStatement:body];
 }
 
-
-
-- (void)setValue:(id)value forKey:(NSString*)key {
+- (void)setValue:(id)value forKey:(NSString*)key
+{
     mapping[key] = value ?: WATemplateNilValuePlaceholder;
 }
 
-
-- (void)appendString:(NSString*)string toValueForKey:(NSString*)key {
+- (void)appendString:(NSString*)string toValueForKey:(NSString*)key
+{
     NSString *value = [self valueForKey:key];
     if(!value) value = @"";
     if(![value isKindOfClass:[NSString class]])
@@ -195,19 +196,21 @@ static NSMutableDictionary *WANamedTemplates;
     [self setValue:[value stringByAppendingString:string] forKey:key];
 }
 
-
-- (id)valueForKey:(NSString*)key {
+- (id)valueForKey:(NSString*)key
+{
     id value = mapping[key];
     if(value == WATemplateNilValuePlaceholder) return nil;
     return value;
 }
 
-- (id)realValueForValue:(id)value {
+- (id)realValueForValue:(id)value
+{
     if(value == WATemplateNilValuePlaceholder) return nil;
     else return value;
 }
 
-- (NSString*)resultWithScope:(TLScope*)scope {
+- (NSString*)resultWithScope:(TLScope*)scope
+{
     TLScope *innerScope = [[TLScope alloc] initWithParentScope:scope];
     NSMutableString *output = [NSMutableString string];
     [innerScope declareValue:output forKey:WATemplateOutputKey];
@@ -222,7 +225,8 @@ static NSMutableDictionary *WANamedTemplates;
     return output;
 }
 
-- (NSString*)resultWithChildContent:(NSString*)content additionalMapping:(NSDictionary*)childMapping {
+- (NSString*)resultWithChildContent:(NSString*)content additionalMapping:(NSDictionary*)childMapping
+{
     TLScope *scope = [[TLScope alloc] initWithParentScope:nil];
     [scope setValue:content forKey:WATemplateChildContentKey];
     
@@ -236,44 +240,45 @@ static NSMutableDictionary *WANamedTemplates;
         return output;
 }
 
-
-- (NSString*)result {
+- (NSString*)result
+{
     return [self resultWithChildContent:nil additionalMapping:nil];
 }
 
-
-- (void)setObject:(id)value forKeyedSubscript:(id)key {
+- (void)setObject:(id)value forKeyedSubscript:(id)key
+{
     [self setValue:value forKey:key];
 }
 
-
-- (id)objectForKeyedSubscript:(id)key {
+- (id)objectForKeyedSubscript:(id)key
+{
     return [self valueForKey:key];
 }
 
-
 #pragma mark Parsing
 
-- (TLStatement*)scanText:(TFStringScanner*)scanner endToken:(NSString**)outEndToken {
+- (TLStatement*)scanText:(TFStringScanner*)scanner endToken:(NSString**)outEndToken
+{
     NSMutableArray *statements = [NSMutableArray array];
     
-    for(;;) {
+    while(true) {
         NSString *text = [scanner scanToString:@"<%"];
         if([text length])
             [statements addObject:[[WAPrintStatement alloc] initWithContent:[[TLObject alloc] initWithObject:text]]];
-        if(scanner.atEnd) break;
+        if(scanner.atEnd)
+            break;
         
         TLStatement *statement = [self scanKeyword:scanner endToken:outEndToken];
         if(!statement) break;
         [statements addObject:statement];        
     }
-    
     return [[TLCompoundStatement alloc] initWithStatements:statements];
 }
 
-
-- (TLStatement*)scanKeyword:(TFStringScanner*)scanner endToken:(NSString**)outEndToken {
-    if(![scanner scanString:@"<%"]) return nil;
+- (TLStatement*)scanKeyword:(TFStringScanner*)scanner endToken:(NSString**)outEndToken
+{
+    if(![scanner scanString:@"<%"])
+        return nil;
     
     NSString *token = [scanner scanToken];
     

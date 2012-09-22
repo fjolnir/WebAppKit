@@ -51,7 +51,8 @@
 @synthesize allowedOrigins=_allowedOrigins;
 
 
-- (id)initWithRequest:(WARequest*)request socket:(GCDAsyncSocket*)socket {
+- (id)initWithRequest:(WARequest*)request socket:(GCDAsyncSocket*)socket
+{
     if(!(self = [super init])) return nil;
     
     self.request = request;
@@ -68,13 +69,13 @@
     return self;
 }
 
-
-- (BOOL)isHTTP11 {
+- (BOOL)isHTTP11
+{
     return [self.request.HTTPVersion isEqual:(id)kCFHTTPVersion1_1];
 }
 
-
-- (CFHTTPMessageRef)createHeader CF_RETURNS_RETAINED {
+- (CFHTTPMessageRef)createHeader CF_RETURNS_RETAINED
+{
     CFHTTPMessageRef message = CFHTTPMessageCreateResponse(NULL, self.statusCode, NULL, (__bridge CFStringRef)self.request.HTTPVersion);
     NSDictionary *fields = [self preparedHeaderFields];
     for(NSString *key in fields)
@@ -83,14 +84,14 @@
     return message;
 }
 
-
-- (void)requireProgressiveHeaderNotSent {
+- (void)requireProgressiveHeaderNotSent
+{
     if(self.progressive && self.hasSentHeader)
         [NSException raise:@"WAResponseHeaderAlreadySentException" format:@"You can't modify the header after it has been sent."];
 }
 
-
-- (void)sendHeader {
+- (void)sendHeader
+{
     [self requireProgressiveHeaderNotSent];
     CFHTTPMessageRef message = [self createHeader];
     NSData *headerData = (__bridge_transfer NSData*)CFHTTPMessageCopySerializedMessage(message);
@@ -99,20 +100,20 @@
     self.hasSentHeader = YES;
 }
 
-
-- (void)sendHeaderIfNeeded {
+- (void)sendHeaderIfNeeded
+{
     if(self.progressive && !self.hasSentHeader) [self sendHeader];
 }
 
-
-- (void)sendFullResponse {
+- (void)sendFullResponse
+{
     [self sendHeader];
     if([self needsBody])
         [self.socket writeData:self.body withTimeout:-1 tag:0];
 }
 
-
-- (void)finish {
+- (void)finish
+{
     if(!self.completionHandler) return;
     
     if(self.progressive)
@@ -124,31 +125,31 @@
     self.completionHandler = nil;
 }
 
-
-- (void)sendBodyChunk:(NSData*)data {
+- (void)sendBodyChunk:(NSData*)data
+{
     if([data length] == 0) return;
     [self.socket writeData:[[NSString stringWithFormat:@"%qX\r\n", (uint64_t)[data length]] dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:0];
     [self.socket writeData:data withTimeout:-1 tag:0];
     [self.socket writeData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:1];
 }
 
-
-- (void)sendTerminationChunk {
+- (void)sendTerminationChunk
+{
     [self.socket writeData:[[NSString stringWithFormat:@"0\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:0];
 }
 
-
-- (void)setProgressive:(BOOL)p {
+- (void)setProgressive:(BOOL)p
+{
     _progressive = p && [self isHTTP11];
 }
 
-
-- (BOOL)needsBody {
+- (BOOL)needsBody
+{
     return ![self.request.method isEqual:@"HEAD"];
 }
 
-
-- (void)appendBodyData:(NSData*)data {
+- (void)appendBodyData:(NSData*)data
+{
     [self sendHeaderIfNeeded];
     if(self.progressive)
         [self sendBodyChunk:data];
@@ -156,13 +157,13 @@
         [self.body appendData:data];
 }
 
-
-- (void)appendString:(NSString*)string {
+- (void)appendString:(NSString*)string
+{
     [self appendBodyData:[string dataUsingEncoding:self.bodyEncoding]];
 }
 
-
-- (void)appendFormat:(NSString*)format, ... {
+- (void)appendFormat:(NSString*)format, ...
+{
     va_list list;
     va_start(list, format);
     NSString *string = [[NSString alloc] initWithFormat:format arguments:list];
@@ -170,9 +171,8 @@
     [self appendString:string];
 }
 
-
-
-- (NSString*)defaultUserAgent {
+- (NSString*)defaultUserAgent
+{
     static NSString *cachedValue;
     if(cachedValue) return cachedValue;
     
@@ -186,23 +186,23 @@
     return cachedValue;
 }
 
-
-- (NSString*)charsetName {
+- (NSString*)charsetName
+{
     return (__bridge NSString*)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(self.bodyEncoding));
 }
 
-
-- (NSString*)contentType {
+- (NSString*)contentType
+{
     return self.mediaType ? [NSString stringWithFormat:@"%@; charset=%@", self.mediaType, self.charsetName] : nil;
 }
 
-
-- (BOOL)needsKeepAliveHeader {
+- (BOOL)needsKeepAliveHeader
+{
     return [self.request.HTTPVersion isEqual:(id)kCFHTTPVersion1_0] && self.request.wantsPersistentConnection; 
 }
 
-
-- (NSDictionary*)defaultHeaderFields {
+- (NSDictionary*)defaultHeaderFields
+{
     NSMutableDictionary *fields = $mdict(@"Server", [self defaultUserAgent],
                                          @"Date", [WAHTTPDateFormatter() stringFromDate:[NSDate date]]
     );
@@ -221,8 +221,8 @@
     return fields;
 }
 
-
-- (NSDictionary*)preparedHeaderFields {
+- (NSDictionary*)preparedHeaderFields
+{
     NSMutableDictionary *fields = [NSMutableDictionary dictionary];
     
     NSString *cookieString = [[[self.cookies allValues] valueForKey:@"headerFieldValue"] componentsJoinedByString:@", "];
@@ -248,20 +248,20 @@
     return fields;
 }
 
-
-- (void)redirectToURL:(NSURL*)URL withStatusCode:(NSUInteger)code {
+- (void)redirectToURL:(NSURL*)URL withStatusCode:(NSUInteger)code
+{
     URL = [NSURL URLWithString:[URL relativeString] relativeToURL:self.request.URL];
     self.statusCode = code;
     [self setValue:[URL absoluteString] forHeaderField:@"Location"];
 }
 
-
-- (void)redirectToURL:(NSURL*)URL {
+- (void)redirectToURL:(NSURL*)URL
+{
     [self redirectToURL:URL withStatusCode:302];    
 }
 
-
-- (void)redirectToURLFormat:(NSString*)format, ... {
+- (void)redirectToURLFormat:(NSString*)format, ...
+{
     va_list list;
     va_start(list, format);
     NSString *string = [[NSString alloc] initWithFormat:format arguments:list];
@@ -272,13 +272,13 @@
     [self redirectToURL:URL];    
 }
 
-
-- (NSString*)valueForHeaderField:(NSString*)fieldName {
+- (NSString*)valueForHeaderField:(NSString*)fieldName
+{
     return (self.headerFields)[fieldName];
 }
 
-
-- (void)setValue:(NSString*)value forHeaderField:(NSString*)fieldName {
+- (void)setValue:(NSString*)value forHeaderField:(NSString*)fieldName
+{
     [self requireProgressiveHeaderNotSent];
     if(value)
         _headerFields[fieldName] = value;
@@ -286,37 +286,49 @@
         [_headerFields removeObjectForKey:fieldName];
 }
 
+- (id)objectForKeyedSubscript:(NSString *)key
+{
+    return [self valueForHeaderField:key];
+}
+- (void)setObject:(id)object forKeyedSubscript:(NSString *)aKey
+{
+    if([aKey isKindOfClass:[NSString class]])
+        [self setValue:object forHeaderField:aKey];
+    else
+        [self setValue:[object stringValue] forHeaderField:aKey];
+}
 
-- (void)addCookie:(WACookie*)cookie {
+- (void)addCookie:(WACookie*)cookie
+{
     [self requireProgressiveHeaderNotSent];
     _cookies[cookie.name] = cookie;
 }
 
-
-- (void)removeCookieNamed:(NSString*)name {
+- (void)removeCookieNamed:(NSString*)name
+{
     [self requireProgressiveHeaderNotSent];
     [_cookies removeObjectForKey:name];
 }
 
-
-- (void)setEntityTag:(NSString*)ETag {
+- (void)setEntityTag:(NSString*)ETag
+{
     [self setValue:ETag forHeaderField:@"ETag"];
 }
 
-
-- (NSString*)entityTag {
+- (NSString*)entityTag
+{
     return [self valueForHeaderField:@"ETag"];
 }
 
-
-- (void)finishWithErrorString:(NSString*)error {
+- (void)finishWithErrorString:(NSString*)error
+{
     [self.body setLength:0];
     [self appendString:error];
     [self finish];
 }
 
-
-- (void)requestAuthenticationForRealm:(NSString*)realm scheme:(WAAuthenticationScheme)scheme {
+- (void)requestAuthenticationForRealm:(NSString*)realm scheme:(WAAuthenticationScheme)scheme
+{
     self.statusCode = 401;
     NSString *response = nil;
     

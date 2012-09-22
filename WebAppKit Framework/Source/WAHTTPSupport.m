@@ -26,11 +26,9 @@ WAByteRange WAByteRangeFromRangeSpec(NSString *spec) {
     return range;
 }
 
-
 BOOL WAByteRangeIsInvalid(WAByteRange range) {
     return range.firstByte == WABytePositionUndefined && range.lastByte == WABytePositionUndefined;
 }
-
 
 WAByteRange WAByteRangeMakeAbsolute(WAByteRange range, uint64_t availableLength) {
     if(WAByteRangeIsInvalid(range)) return range;
@@ -47,21 +45,17 @@ WAByteRange WAByteRangeMakeAbsolute(WAByteRange range, uint64_t availableLength)
     return range;
 }
 
-
 WAByteRange WAByteRangeMake(uint64_t first, uint64_t last) {
     return (WAByteRange){ first, last };
 }
-
 
 BOOL WAByteRangeContainsByte(WAByteRange concreteRange, uint64_t bytePos) {
     return bytePos >= concreteRange.firstByte && bytePos <= concreteRange.lastByte;
 }
 
-
 BOOL WAByteRangesOverlap(WAByteRange range1, WAByteRange range2) {
     return WAByteRangeContainsByte(range1, range2.firstByte) || WAByteRangeContainsByte(range1, range2.lastByte) || WAByteRangeContainsByte(range2, range1.firstByte) || WAByteRangeContainsByte(range2, range1.lastByte);
 }
-
 
 WAByteRange WAByteRangeCombine(WAByteRange range1, WAByteRange range2) {
     if(WAByteRangesOverlap(range1, range2) || range1.lastByte == range2.firstByte-1 || range2.lastByte == range1.firstByte-1)

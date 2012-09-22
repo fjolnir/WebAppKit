@@ -25,7 +25,8 @@ static NSMutableDictionary *extensionMediaTypeMapping;
 @synthesize statusCode=_statusCode;
 
 
-+ (NSString*)mediaTypeForFileExtension:(NSString*)extension {
++ (NSString*)mediaTypeForFileExtension:(NSString*)extension
+{
     if(!extensionMediaTypeMapping) {
         NSURL *mappingFileURL = [[NSBundle bundleForClass:[WAStaticFileHandler class]] URLForResource:@"MediaTypes" withExtension:@"plist"];
         extensionMediaTypeMapping = [NSMutableDictionary dictionaryWithContentsOfURL:mappingFileURL];
@@ -34,13 +35,13 @@ static NSMutableDictionary *extensionMediaTypeMapping;
     return extensionMediaTypeMapping[extension];
 }
 
-
-+ (void)setMediaType:(NSString*)mediaType forFileExtension:(NSString*)extension {
++ (void)setMediaType:(NSString*)mediaType forFileExtension:(NSString*)extension
+{
     extensionMediaTypeMapping[extension] = mediaType;
 }
 
-
-- (id)initWithFile:(NSString*)path enableCaching:(BOOL)useHTTPCache {
+- (id)initWithFile:(NSString*)path enableCaching:(BOOL)useHTTPCache
+{
     if(!(self = [super init])) return nil;
     
     self.file = path;
@@ -50,9 +51,9 @@ static NSMutableDictionary *extensionMediaTypeMapping;
     return self;
 }
 
-
 // We use this instead of -[NSWorkspace typeOfFile:error:] because NSWorkspace is in AppKit.
-+ (NSString*)UTIForFile:(NSString*)file {
++ (NSString*)UTIForFile:(NSString*)file
+{
     FSRef ref;
     if(FSPathMakeRef((const uint8_t*)[file fileSystemRepresentation], &ref, false) != noErr) return nil;
     CFDictionaryRef values = nil;
@@ -63,8 +64,8 @@ static NSMutableDictionary *extensionMediaTypeMapping;
     return type;
 }
 
-
-+ (NSString*)mediaTypeForFile:(NSString*)file {
++ (NSString*)mediaTypeForFile:(NSString*)file
+{
     NSString *extension = [file pathExtension];
     if(extension) {
         NSString *mediaType = [[self class] mediaTypeForFileExtension:extension];
@@ -79,8 +80,8 @@ static NSMutableDictionary *extensionMediaTypeMapping;
     return mediaType;
 }
 
-
-- (void)handleRequest:(WARequest *)req response:(WAResponse *)resp {
+- (void)handleRequest:(WARequest *)req response:(WAResponse *)resp
+{
     resp.statusCode = self.statusCode;
     NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:self.file error:NULL];
     NSDate *modificationDate = [attributes fileModificationDate];

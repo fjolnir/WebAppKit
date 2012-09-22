@@ -16,22 +16,24 @@
 
 @implementation WARequestHandler
 
-- (BOOL)canHandleRequest:(WARequest*)req {
+- (BOOL)canHandleRequest:(WARequest*)req
+{
     return NO;
 }
 
-
-- (WARequestHandler*)handlerForRequest:(WARequest*)req {
+- (WARequestHandler*)handlerForRequest:(WARequest*)req
+{
     return self;
 }
 
-
-- (void)handleRequest:(WARequest*)req response:(WAResponse*)resp socket:(GCDAsyncSocket*)sock {
+- (void)handleRequest:(WARequest*)req response:(WAResponse*)resp socket:(GCDAsyncSocket*)sock
+{
     [self handleRequest:req response:resp];
 }
 
-
-- (void)handleRequest:(WARequest*)req response:(WAResponse*)resp {}
-- (void)connectionDidClose {}
+- (void)handleRequest:(WARequest*)req response:(WAResponse*)resp
+{}
+- (void)connectionDidClose
+{}
 
 @end
