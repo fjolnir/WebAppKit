@@ -27,11 +27,11 @@ static NSMutableDictionary *extensionMediaTypeMapping;
 
 + (NSString*)mediaTypeForFileExtension:(NSString*)extension
 {
-    if(!extensionMediaTypeMapping) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         NSURL *mappingFileURL = [[NSBundle bundleForClass:[WAStaticFileHandler class]] URLForResource:@"MediaTypes" withExtension:@"plist"];
         extensionMediaTypeMapping = [NSMutableDictionary dictionaryWithContentsOfURL:mappingFileURL];
-    }
-
+    });
     return extensionMediaTypeMapping[extension];
 }
 
