@@ -16,5 +16,8 @@ NSString *WAExtractHeaderValueParameters(NSString *fullValue, NSDictionary **out
 NSString *WAConstructHTTPStringValue(NSString *string);
 NSString *WAConstructHTTPParameterString(NSDictionary *params);
 
+BOOL WAAppUsesBundle();
+NSString *WAPathForResource(NSString *name, NSString *type, NSString *directory);
+
 void WASetDevelopmentMode(BOOL enable);
 BOOL WAGetDevelopmentMode();

@@ -108,6 +108,38 @@ NSString *WAConstructHTTPParameterString(NSDictionary *params) {
     return string;
 }
 
+BOOL WAAppUsesBundle()
+{
+    static BOOL result;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        result =  [[[NSBundle mainBundle] bundlePath] hasSuffix:@"app"];
+    });
+    return result;
+}
+
+NSString *WAPathForResource(NSString *name, NSString *type, NSString *directory)
+{
+    if(WAAppUsesBundle())
+        return [[NSBundle mainBundle] pathForResource:name ofType:type inDirectory:directory];
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableString *path = [NSMutableString stringWithString:[fileManager currentDirectoryPath]];
+    [path appendString:@"/"];
+    if(directory) {
+        [path appendString:directory];
+        if(![directory hasSuffix:@"/"])
+            [path appendString:@"/"];
+    }
+    [path appendString:name];
+    if(type) {
+        [path appendString:@"."];
+        [path appendString:type];
+    }
+
+    return [fileManager fileExistsAtPath:path] ? path : nil;
+}
+
 static BOOL WADevelopmentMode;
 
 void WASetDevelopmentMode(BOOL enable) {
