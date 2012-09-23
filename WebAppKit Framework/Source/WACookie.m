@@ -76,12 +76,13 @@
 + (NSDateFormatter*)expiryDateFormatter
 {
     static NSDateFormatter *formatter;
-    if(!formatter) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         formatter = [[NSDateFormatter alloc] init];
         [formatter setDateFormat:@"EEE, dd-MMM-y HH:mm:ss 'GMT'"];
         [formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
         [formatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
-    }
+    });
     return formatter;
 }
 

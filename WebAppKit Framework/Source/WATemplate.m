@@ -96,7 +96,6 @@ NSString *const WATemplateSessionTokenKey     = @"_WATemplateSessionToken";
 @end
 
 
-
 @interface WADebugStatement : TLStatement {}
 @end
 

@@ -44,8 +44,8 @@ static const NSTimeInterval WASessionDefaultLifespan = 31556926;
 {
     if(!(self = [super init])) return nil;
     self.database = database;
-    self.name = name;
-    self.token = token;
+    self.name     = name;
+    self.token    = token;
 
     if(![self tokenIsValid:self.token]) return nil;    
     return self;
@@ -56,8 +56,8 @@ static const NSTimeInterval WASessionDefaultLifespan = 31556926;
     if(!(self = [super init])) return nil;
 
     self.database = database;
-    self.name = name;
-    self.request = request;
+    self.name     = name;
+    self.request  = request;
     self.response = response;
 
     WACookie *cookie = [request cookieForName:name] ?: [response cookies][name];

@@ -70,6 +70,8 @@ static NSString *signatureForBlock(id blockObj);
 
 + (void)initialize
 {
+    if(self != [WARoute class])
+        return;
     NSMutableCharacterSet *set = [NSMutableCharacterSet characterSetWithRanges:NSMakeRange('a', 26), NSMakeRange('A', 26), NSMakeRange('0', 10), NSMakeRange(0, 0)];
     [set addCharactersInString:@"-_."];
     wildcardComponentCharacters = set;
@@ -234,9 +236,6 @@ static NSString *signatureForBlock(id blockObj);
         else
             value = [self callIdBlock:_handlerBlock arguments:handlerArgs count:argCount];
     } else {
-        if([self.target respondsToSelector:@selector(setRequest:response:)])
-            [self.target setRequest:request response:response];
-
         id target = self.target;
         SEL action = self.action;
 
@@ -250,8 +249,6 @@ static NSString *signatureForBlock(id blockObj);
             void(*voidFunction)(id, SEL, ...) = (void(*)(id, SEL, ...)) method_getImplementation(actionMethod);
             [self callVoidFunction:voidFunction target:target action:action arguments:handlerArgs count:argCount];
         }
-        if([self.target respondsToSelector:@selector(setRequest:response:)])
-            [target setRequest:nil response:nil];
     }
 
     if([value isKindOfClass:[WATemplate class]])

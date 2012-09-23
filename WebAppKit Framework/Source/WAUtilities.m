@@ -40,12 +40,13 @@ NSUInteger WAGetParameterCountForSelector(SEL selector) {
 
 NSDateFormatter *WAHTTPDateFormatter(void) {
     static NSDateFormatter *formatter;
-    if(!formatter) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         formatter = [[NSDateFormatter alloc] init];
         [formatter setDateFormat:@"E, dd MMM yyyy HH:mm:ss 'GMT'"];
         [formatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
         [formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-    }
+    });
     return formatter;
 }
 

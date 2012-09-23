@@ -34,11 +34,6 @@
 @end
 
 
-@interface WAApplication (Private)
-- (void)setRequest:(WARequest*)req response:(WAResponse*)resp;
-@end
-
-
 @interface WAUploadedFile (Private)
 - (id)initWithPart:(WAMultipartPart*)part;
 - (void)invalidate;

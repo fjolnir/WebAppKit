@@ -248,7 +248,10 @@
 + (NSCharacterSet*)ASCIIAlphanumericCharacterSet
 {
     static NSCharacterSet *set;
-    if(!set) set = [NSCharacterSet characterSetWithRanges:NSMakeRange('a',26), NSMakeRange('A',26), NSMakeRange('0',10), NSMakeRange(0,0)];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [NSCharacterSet characterSetWithRanges:NSMakeRange('a',26), NSMakeRange('A',26), NSMakeRange('0',10), NSMakeRange(0,0)];
+    });
     return set;
 }
 

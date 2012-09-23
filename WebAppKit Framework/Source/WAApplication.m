@@ -38,9 +38,6 @@ int WAApplicationMain()
 @property(strong) NSMutableArray *requestHandlers;
 @property(strong) NSMutableSet *currentHandlers;
 
-@property(strong, readwrite) WARequest *request;
-@property(strong, readwrite) WAResponse *response;
-
 - (WARequestHandler*)handlerForRequest:(WARequest*)req;
 @end
 
@@ -49,8 +46,6 @@ int WAApplicationMain()
 @synthesize server=_server;
 @synthesize requestHandlers=_requestHandlers;
 @synthesize currentHandlers=_currentHandlers;
-@synthesize request=_request;
-@synthesize response=_response;
 @synthesize sessionGenerator=_sessionGenerator;
 
 + (uint16_t)port
@@ -185,18 +180,12 @@ int WAApplicationMain()
     return route;
 }
 
-- (void)setRequest:(WARequest*)req response:(WAResponse*)resp
-{
-    self.request = req;
-    self.response = resp;
-}
-
-- (WASession*)session
+- (WASession*)sessionForRequest:(WARequest *)request response:(WAResponse *)response
 {
     if(!self.sessionGenerator)
         [NSException raise:NSGenericException
                     format:@"The session property cannot be used without first setting a sessionGenerator."];
-    return [self.sessionGenerator sessionForRequest:self.request response:self.response];
+    return [self.sessionGenerator sessionForRequest:request response:response];
 }
 
 - (WARoute *)handlePath:(NSString *)path forMethod:(NSString *)method with:(WARouteHandlerBlock)block {

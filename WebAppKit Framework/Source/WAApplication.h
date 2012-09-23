@@ -13,8 +13,6 @@
 extern int WAApplicationMain();
 
 @interface WAApplication : NSObject
-@property(readonly, strong) WARequest *request;
-@property(readonly, strong) WAResponse *response;
 @property(strong) WASessionGenerator *sessionGenerator;
 @property(readonly, nonatomic) WASession *session;
 
