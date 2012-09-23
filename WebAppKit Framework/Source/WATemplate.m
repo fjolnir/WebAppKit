@@ -11,6 +11,8 @@
 #import "TL.h"
 #import "WASession.h"
 
+NSString *const WATemplateFileExtension = @"wat";
+
 @interface WATemplate()
 - (TLStatement*)scanKeyword:(TFStringScanner*)scanner endToken:(NSString**)outEndToken;
 - (TLStatement*)scanText:(TFStringScanner*)scanner endToken:(NSString**)outEndToken;
@@ -24,10 +26,10 @@
 @end
 
 
-NSString *const WATemplateOutputKey = @"_WATemplateOutput";
-NSString *const WATemplateChildContentKey = @"_WATemplateChildContent";
+NSString *const WATemplateOutputKey           = @"_WATemplateOutput";
+NSString *const WATemplateChildContentKey     = @"_WATemplateChildContent";
 NSString *const WATemplateNilValuePlaceholder = @"_WATemplateNil";
-NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
+NSString *const WATemplateSessionTokenKey     = @"_WATemplateSessionToken";
 
 
 @interface WAPrintStatement : TLStatement {
@@ -81,9 +83,7 @@ NSString *const WATemplateSessionTokenKey = @"_WATemplateSessionToken";
 
 - (void)invokeInScope:(TLScope *)scope
 {
-    WATemplate *template = [WATemplate templateNamed:templateName];
-    NSString *result = [template resultWithScope:scope];
-
+    NSString *result = [[WATemplate templateNamed:templateName] resultWithScope:scope];
     NSMutableString *output = [scope valueForKey:WATemplateOutputKey];
     [output appendString:result];
 }
@@ -130,7 +130,7 @@ static NSMutableDictionary *WANamedTemplates;
 
 + (id)templateNamed:(NSString*)name inBundle:(NSBundle*)bundle
 {
-    NSURL *URL = [bundle URLForResource:name withExtension:@"wat"];
+    NSURL *URL = [bundle URLForResource:name withExtension:WATemplateFileExtension];
     if(!URL) [NSException raise:NSInvalidArgumentException format:@"Template named '%@' wasn't found.", name];
     return [[self alloc] initWithContentsOfURL:URL];
 }
@@ -139,9 +139,10 @@ static NSMutableDictionary *WANamedTemplates;
 {
     WATemplate *template = WANamedTemplates[name];
     if(!template) {
-        NSURL *URL = [[NSBundle mainBundle] URLForResource:name withExtension:@"wat"];
-        if(!URL) return nil;
-        template = [[self alloc] initWithContentsOfURL:URL];
+        NSString *path = WAPathForResource(name, WATemplateFileExtension, nil);
+        if(!path)
+            return nil;
+        template = [[self alloc] initWithContentsOfFile:path];
         // Reload the template every time in dev mode
         if(!WAGetDevelopmentMode())
             WANamedTemplates[name] = template;
@@ -152,14 +153,15 @@ static NSMutableDictionary *WANamedTemplates;
 + (id)templateNamed:(NSString*)name parent:(NSString*)parentName
 {
     WATemplate *template = [self templateNamed:name];
-    template.parent = [self templateNamed:parentName];
+    template.parent      = [self templateNamed:parentName];
     return template;
 }
 
 - (id)initWithStatement:(TLStatement*)statement
 {
-    self = [super init];
-    body = statement;
+    if(!(self = [super init]))
+        return nil;
+    body    = statement;
     mapping = [NSMutableDictionary dictionary];
     return self;
 }
@@ -167,13 +169,18 @@ static NSMutableDictionary *WANamedTemplates;
 - (id)initWithSource:(NSString*)templateString
 {    
     TFStringScanner *scanner = [TLExpression newScannerForString:templateString];
-    TLStatement *statement = [self scanText:scanner endToken:nil];
+    TLStatement *statement   = [self scanText:scanner endToken:nil];
     return [self initWithStatement:statement];
 }
 
 - (id)initWithContentsOfURL:(NSURL*)URL
 {
     return [self initWithSource:[NSString stringWithContentsOfURL:URL encoding:NSUTF8StringEncoding error:NULL]];
+}
+
+- (id)initWithContentsOfFile:(NSString*)path
+{
+    return [self initWithSource:[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL]];
 }
 
 - (id)copyWithZone:(NSZone*)zone

@@ -8,6 +8,8 @@
 
 @class TLStatement, WASession;
 
+extern NSString *const WATemplateFileExtension;
+
 @interface WATemplate : NSObject <NSCopying> {
     TLStatement *body;
     NSMutableDictionary *mapping;
@@ -22,6 +24,7 @@
 
 - (id)initWithSource:(NSString*)templateString;
 - (id)initWithContentsOfURL:(NSURL*)URL;
+- (id)initWithContentsOfFile:(NSString*)path;
 
 - (void)setValue:(id)value forKey:(NSString*)key;
 - (id)valueForKey:(NSString*)key;
