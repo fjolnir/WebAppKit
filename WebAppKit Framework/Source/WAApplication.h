@@ -21,6 +21,7 @@ extern int WAApplicationMain();
 
 - (id)init;
 - (BOOL)start:(NSError**)error;
+- (void)waitAndListen;
 - (void)invalidate;
 
 - (WARoute*)addRouteSelector:(SEL)sel HTTPMethod:(NSString*)method path:(NSString*)path;

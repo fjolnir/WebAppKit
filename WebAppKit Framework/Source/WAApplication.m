@@ -122,6 +122,15 @@ int WAApplicationMain()
     return [self.server start:error];
 }
 
+- (void)waitAndListen
+{
+    NSError *err;
+    NSAssert([self start:&err], @"Unable to start WebApplication: %@", err);
+    while(true) {
+        [[NSRunLoop currentRunLoop] run];
+    }
+}
+
 - (void)invalidate
 {
     [self.server invalidate];

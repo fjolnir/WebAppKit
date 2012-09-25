@@ -59,7 +59,9 @@
 
 - (void)handleRequest:(WARequest*)request
 {
-    uint64_t start = WANanosecondTime();
+    uint64_t start;
+    if(WAGetDevelopmentMode())
+        start = WANanosecondTime();
 
     self.currentRequestHandler = self.server.requestHandlerFactory(request);
 
