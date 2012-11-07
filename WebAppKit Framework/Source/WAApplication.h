@@ -12,6 +12,8 @@
 
 extern int WAApplicationMain();
 
+typedef void (^WAErrorHandler)(NSError *aError);
+
 @interface WAApplication : NSObject
 @property(strong) WASessionGenerator *sessionGenerator;
 @property(readonly, nonatomic) WASession *session;
@@ -21,6 +23,7 @@ extern int WAApplicationMain();
 
 - (id)init;
 - (BOOL)start:(NSError**)error;
+- (void)waitAndListenWithErrorHandler:(WAErrorHandler)errorHandler;
 - (void)waitAndListen;
 - (void)invalidate;
 

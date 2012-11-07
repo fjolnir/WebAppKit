@@ -124,10 +124,19 @@ int WAApplicationMain()
 
 - (void)waitAndListen
 {
+    [self waitAndListenWithErrorHandler:nil];
+}
+- (void)waitAndListenWithErrorHandler:(WAErrorHandler)errorHandler
+{
     NSError *err;
-    NSAssert([self start:&err], @"Unable to start WebApplication: %@", err);
-    while(true) {
-        [[NSRunLoop currentRunLoop] run];
+    if([self start:&err]) {
+        while(true) {
+            [[NSRunLoop currentRunLoop] run];
+        }
+    } else if(errorHandler) {
+        errorHandler(err);
+    } else {
+        NSAssert(NO, @"Unable to start WebApplication: %@", err);
     }
 }
 
@@ -199,6 +208,15 @@ int WAApplicationMain()
 
 - (WARoute *)handlePath:(NSString *)path forMethod:(NSString *)method with:(WARouteHandlerBlock)block {
     WARoute *route = [WARoute routeWithPathExpression:path method:method handler:block];
+    NSIndexSet *existingRoutes = [self.requestHandlers indexesOfObjectsPassingTest:^(WARoute *r, NSUInteger i, BOOL *stop) {
+        return (BOOL)([r isKindOfClass:[WARoute class]] && [r.method isEqual:method] && [r.components isEqual:route.components]);
+    }];
+    [self.requestHandlers removeObjectsAtIndexes:existingRoutes];
+    for(id handler in self.requestHandlers) {
+        if(![handler isKindOfClass:[WARoute class]])
+            continue;
+
+    }
     [self addRequestHandler: route];
     return route;
 }
