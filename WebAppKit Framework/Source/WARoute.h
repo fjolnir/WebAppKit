@@ -13,6 +13,7 @@
 typedef id WARouteHandlerBlock;
 
 @interface WARoute : WARequestHandler
+@property(readonly, strong) NSArray *components;
 @property(readonly, copy) NSString *method;
 @property(readonly, assign) SEL action;
 @property(readonly, weak) id target;

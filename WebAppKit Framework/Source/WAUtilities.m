@@ -25,15 +25,6 @@ uint64_t WANanosecondTime() {
     return mach_absolute_time() * timebaseInfo.numer / timebaseInfo.denom;
 }
 
-NSString *WAApplicationSupportDirectory(void) {
-    NSString *name = [[NSBundle mainBundle] bundleIdentifier];
-    NSString *root = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *directory = [root stringByAppendingPathComponent:name];
-    if(![[NSFileManager defaultManager] fileExistsAtPath:directory])
-        [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:NULL];
-    return directory;
-}
-
 NSUInteger WAGetParameterCountForSelector(SEL selector) {
     return [[NSStringFromSelector(selector) componentsSeparatedByString:@":"] count]-1;
 }
@@ -107,38 +98,6 @@ NSString *WAConstructHTTPParameterString(NSDictionary *params) {
             [string appendFormat:@"; %@=%@", WAConstructHTTPStringValue(name), WAConstructHTTPStringValue(params[name])];
     }
     return string;
-}
-
-BOOL WAAppUsesBundle()
-{
-    static BOOL result;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        result =  [[[NSBundle mainBundle] bundlePath] hasSuffix:@"app"];
-    });
-    return result;
-}
-
-NSString *WAPathForResource(NSString *name, NSString *type, NSString *directory)
-{
-    if(WAAppUsesBundle())
-        return [[NSBundle mainBundle] pathForResource:name ofType:type inDirectory:directory];
-
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSMutableString *path = [NSMutableString stringWithString:[fileManager currentDirectoryPath]];
-    [path appendString:@"/"];
-    if(directory) {
-        [path appendString:directory];
-        if(![directory hasSuffix:@"/"])
-            [path appendString:@"/"];
-    }
-    [path appendString:name];
-    if(type) {
-        [path appendString:@"."];
-        [path appendString:type];
-    }
-
-    return [fileManager fileExistsAtPath:path] ? path : nil;
 }
 
 static BOOL WADevelopmentMode;

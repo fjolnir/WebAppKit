@@ -11,7 +11,6 @@
 #import "WAResponse.h"
 #import "WARequestHandler.h"
 #import "WAServer.h"
-#import "WATemplate.h"
 #import "WAPrivate.h"
 #import "GCDAsyncSocket.h"
 
@@ -84,10 +83,8 @@
 
     @try {
         [self.currentRequestHandler handleRequest:request response:response socket:self.socket];
-    }@catch(NSException *e) {
-        WATemplate *template = [[WATemplate alloc] initWithContentsOfURL:[[NSBundle bundleForClass:[self class]] URLForResource:@"Exception" withExtension:@"wat"]];
-        [template setValue:e forKey:@"exception"];
-        [response finishWithErrorString:[template result]];
+    } @catch(NSException *e) {
+        [response finishWithErrorString:[e reason]];
     }
 }
 

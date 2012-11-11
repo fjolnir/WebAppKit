@@ -10,7 +10,6 @@
 #import "WARequest.h"
 #import "WAResponse.h"
 #import "WAApplication.h"
-#import "WATemplate.h"
 #import "WAPrivate.h"
 
 #import <objc/runtime.h>
@@ -251,9 +250,7 @@ static NSString *signatureForBlock(id blockObj);
         }
     }
 
-    if([value isKindOfClass:[WATemplate class]])
-        [response appendString:[value result]];
-    else if([value isKindOfClass:[NSData class]])
+    if([value isKindOfClass:[NSData class]])
         [response appendBodyData:value];
     else if(value)
         [response appendString:[value description]];

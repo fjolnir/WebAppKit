@@ -14,8 +14,6 @@
 #import "WAServer.h"
 #import "WADirectoryHandler.h"
 #import "WAStaticFileHandler.h"
-#import "WASession.h"
-#import "WASessionGenerator.h"
 
 static const NSString *WAHTTPServerPortKey = @"WAHTTPServerPort";
 static const NSString *WAHTTPServerExternalAccessKey = @"WAHTTPServerExternalAccess";
@@ -144,8 +142,6 @@ int WAApplicationMain()
 {
     [self.server invalidate];
     self.server = nil;
-    [self.sessionGenerator invalidate];
-    self.sessionGenerator = nil;
 }
 
 
@@ -196,14 +192,6 @@ int WAApplicationMain()
 
     [self addRequestHandler:route];
     return route;
-}
-
-- (WASession*)sessionForRequest:(WARequest *)request response:(WAResponse *)response
-{
-    if(!self.sessionGenerator)
-        [NSException raise:NSGenericException
-                    format:@"The session property cannot be used without first setting a sessionGenerator."];
-    return [self.sessionGenerator sessionForRequest:request response:response];
 }
 
 - (WARoute *)handlePath:(NSString *)path forMethod:(NSString *)method with:(WARouteHandlerBlock)block {
